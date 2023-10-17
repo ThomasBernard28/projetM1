@@ -17,21 +17,22 @@ def convertToXlsx(file_path):
     workbook_xls = xlrd.open_workbook(file_path)
     wb = openpyxl.Workbook()
 
+    # I use the nameSheet blank index of the name sheet because the list of marks stops after the last student
+    nameSheet = workbook_xls.sheet_by_name("Nom")
+    break_index_row = findBlanklIndex(nameSheet)
+
     # We will also delete useless sheets and useless infos
     for sheet_xls in workbook_xls.sheets():
         if sheet_xls.name in ["Nom", "B1", "B2", "Noel", "B3", "B4", "Exam. Juin"]:
             ws = wb.create_sheet(title=sheet_xls.name)
 
             break_index_col = 0
-            break_index_row = 0
 
             if sheet_xls.name != "Nom":
                 break_index_col += findTotalOrBlankIndex(sheet_xls)
-                break_index_row += findMoyenneOrBlanklIndex(sheet_xls) - 1
 
             else:
                 break_index_col += 2
-                break_index_row += findMoyenneOrBlanklIndex(sheet_xls)
 
             for row in range(break_index_row):
                 row_data = []
@@ -56,10 +57,10 @@ def findTotalOrBlankIndex(sheet_xls):
         else:
             i = i + 1
 
-def findMoyenneOrBlanklIndex(sheet_xls):
+def findBlanklIndex(sheet_xls):
     i = 3
     while i < sheet_xls.nrows:
-        if sheet_xls.cell_value(i, 1) == "Moyenne" or sheet_xls.cell_value(i, 1) == "":
+        if sheet_xls.cell_value(i, 1) == "":
             print(i)
             return i
         else:
