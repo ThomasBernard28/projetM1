@@ -55,7 +55,7 @@ def convertToXlsx(file_path):
     default_sheet = wb["Sheet"]
     wb.remove(default_sheet)
 
-    xlsx_file = "../resources/output.xlsx"
+    xlsx_file = "../resources/bulletin.xlsx"
     wb.save(xlsx_file)
     return wb
 
