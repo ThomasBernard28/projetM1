@@ -17,9 +17,13 @@ def convertToXlsx(file_path):
     workbook_xls = xlrd.open_workbook(file_path)
     wb = openpyxl.Workbook()
 
-    # I use the nameSheet blank index of the name sheet because the list of marks stops after the last student
+    # I use the nameSheet blank index of the name sheet as a break index because
+    # the list of results stops after the last student.
     nameSheet = workbook_xls.sheet_by_name("Nom")
     break_index_row = findBlanklIndex(nameSheet)
+
+    className = nameSheet.cell_value(0, 0)
+    students = findAllStudents(nameSheet)
 
     # We will also delete useless sheets and useless infos
     for sheet_xls in workbook_xls.sheets():
@@ -38,9 +42,16 @@ def convertToXlsx(file_path):
                 row_data = []
                 for col in range(break_index_col):
                     row_data.append(sheet_xls.cell_value(row, col))
+
                 ws.append(row_data)
-        else :
+
+            for student in students:
+                ws['B' + str(student[0])] = student[1]
+
+            ws['A1'] = className
+        else:
             pass
+
     default_sheet = wb["Sheet"]
     wb.remove(default_sheet)
 
@@ -55,7 +66,7 @@ def findTotalOrBlankIndex(sheet_xls):
         if sheet_xls.cell_value(0, i) == "Total SSFL" or sheet_xls.cell_value(0, i) == "":
             return i
         else:
-            i = i + 1
+            i += 1
 
 def findBlanklIndex(sheet_xls):
     i = 3
@@ -64,6 +75,15 @@ def findBlanklIndex(sheet_xls):
             print(i)
             return i
         else:
-            i = i + 1
+            i += 1
+
+def findAllStudents(sheet_xls):
+    i = 3
+    students = []
+    while i < sheet_xls.nrows and sheet_xls.cell_value(i, 1) != "":
+        students.append((i+1, sheet_xls.cell_value(i, 1)))
+        i += 1
+    print(students)
+    return students
 
 loadFile("../resources/bulletin.xls")
