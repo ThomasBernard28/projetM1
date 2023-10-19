@@ -6,7 +6,7 @@ Le but de cette application est de visualiser dans une interface web développé
 
 ## Fonctionnalités :
 
-- Charger un bulletin standardisé au format Exel
+- Charger un bulletin standardisé au format Excel
 - Extraire les résultats pour chaque élève dans les différentes compétences
 - Comparer les élèves entre eux ou par rapport à la classe entière pour une, plusieurs ou toutes les compétences.
 - Vision normalisée des résultats des étudiants en regard du reste de la classe.
