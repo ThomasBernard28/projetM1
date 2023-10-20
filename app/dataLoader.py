@@ -13,11 +13,11 @@ def load_file(file_path):
 
 
 def convert_to_xlsx(file_path):
-    # As openpyxl doesn't support .xls we will convert it to .xlsx
+    # As openpyxl doesn't support .xls we will convert it to .xlsx using xlrd
     workbook_xls = xlrd.open_workbook(file_path)
     wb = openpyxl.Workbook()
 
-    # I use the nameSheet blank index of the name sheet as a break index because
+    # I use the nameSheet "blank" index of the name_sheet as a break index because
     # the list of results stops after the last student.
     name_sheet = workbook_xls.sheet_by_name("Nom")
     break_index_row = find_blank_index(name_sheet)
@@ -27,6 +27,9 @@ def convert_to_xlsx(file_path):
 
     # We will also delete useless sheets and useless infos
     for sheet_xls in workbook_xls.sheets():
+        # This solution might not be the best, but it is easily editable
+        # Another solution would be to offer the possibility to the user to choose
+        # which sheets he wants to load.
         if sheet_xls.name in ["Nom", "B1", "B2", "Noel", "B3", "B4", "Exam. Juin"]:
             ws = wb.create_sheet(title=sheet_xls.name)
 
@@ -45,9 +48,11 @@ def convert_to_xlsx(file_path):
 
                 ws.append(row_data)
 
+            # Adding students names to all sheets
             for student in students:
                 ws['B' + str(student[0])] = student[1]
 
+            # Adding class name to all sheets
             ws['A1'] = class_name
         else:
             pass
@@ -61,6 +66,7 @@ def convert_to_xlsx(file_path):
 
 
 def find_total_or_blank_index(sheet_xls):
+    # We start in the second col to avoid the class columns
     i = 2
     while i < sheet_xls.ncols:
         if sheet_xls.cell_value(0, i) == "Total SSFL" or sheet_xls.cell_value(0, i) == "":
