@@ -1,16 +1,19 @@
 import openpyxl
 import xlrd
+import pandas as pd
 
 
 def load_file(file_path):
     try:
+        print("i try")
         wb = openpyxl.load_workbook(file_path)
+        print("i'm here")
         return wb
     except:
         # The xlsx doesn't exist yet
         wb = convert_to_xlsx(file_path)
+        print("no i'm here")
         return wb
-
 
 def convert_to_xlsx(file_path):
     # As openpyxl doesn't support .xls we will convert it to .xlsx using xlrd
@@ -79,7 +82,6 @@ def find_blank_index(sheet_xls):
     i = 3
     while i < sheet_xls.nrows:
         if sheet_xls.cell_value(i, 1) == "":
-            print(i)
             return i
         else:
             i += 1
@@ -91,8 +93,9 @@ def find_all_students(sheet_xls):
     while i < sheet_xls.nrows and sheet_xls.cell_value(i, 1) != "":
         students.append((i + 1, sheet_xls.cell_value(i, 1)))
         i += 1
-    print(students)
     return students
 
 
-load_file("../resources/bulletin.xls")
+def get_a_dataframe_by_sheet(wb, sheet_name):
+    df = pd.DataFrame(wb[sheet_name].values)
+    return df
