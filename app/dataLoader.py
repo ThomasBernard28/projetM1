@@ -3,18 +3,6 @@ import xlrd
 import pandas as pd
 
 
-def load_file(file_path):
-    try:
-        print("i try")
-        wb = openpyxl.load_workbook(file_path)
-        print("i'm here")
-        return wb
-    except:
-        # The xlsx doesn't exist yet
-        wb = convert_to_xlsx(file_path)
-        print("no i'm here")
-        return wb
-
 def convert_to_xlsx(file_path):
     # As openpyxl doesn't support .xls we will convert it to .xlsx using xlrd
     workbook_xls = xlrd.open_workbook(file_path)
@@ -47,7 +35,14 @@ def convert_to_xlsx(file_path):
             for row in range(break_index_row):
                 row_data = []
                 for col in range(break_index_col):
-                    row_data.append(sheet_xls.cell_value(row, col))
+                    if sheet_xls.cell_type(row, col) == xlrd.XL_CELL_NUMBER:
+                        row_data.append(sheet_xls.cell_value(row, col))
+
+                    elif sheet_xls.cell_type(row, col) == xlrd.XL_CELL_EMPTY and (col > 1 and row > 2):
+                        row_data.append("NP")
+
+                    else:
+                        row_data.append(sheet_xls.cell_value(row, col))
 
                 ws.append(row_data)
 
