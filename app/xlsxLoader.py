@@ -18,7 +18,7 @@ def parse_file(file_path):
             sheet = workbook[sheet_name]
             parsed_sheet = parsed_workbook.create_sheet(title=sheet_name)
 
-            break_index_col = 1
+            break_index_col = 0
 
             if sheet_name != "Nom":
                 break_index_col += find_total_or_blank_index(sheet)
@@ -26,12 +26,12 @@ def parse_file(file_path):
             else:
                 break_index_col += 2
 
-            for row in range(break_index_row):
+            for row in range(1, break_index_row):
                 row_data = []
-                for col in range(break_index_col):
-                    if isinstance(sheet.cell(row, col).value, (int,float)):
+                for col in range(1, break_index_col):
+                    if isinstance(sheet.cell(row, col).value, (int, float)):
                         row_data.append(sheet.cell(row, col).value)
-                    elif sheet.cell(row, col).value is None and (col > 1 and row > 2):
+                    elif sheet.cell(row, col).value is None and (col > 2 and row > 3):
                         row_data.append("NP")
                     else:
                         row_data.append(sheet.cell(row, col).value)
@@ -40,6 +40,7 @@ def parse_file(file_path):
 
             for student in students:
                 parsed_sheet['B'+str(student[0])] = student[1]
+                parsed_sheet['A'+str(student[0])] = student[0] - 3
 
             parsed_sheet['A1'] = class_name
 
@@ -57,13 +58,15 @@ def find_blank_index(sheet):
     while i < sheet.max_row:
         if sheet.cell(i, 2).value is None:
             return i
+        else:
+            i += 1
 
 
 def find_all_students(sheet):
     i = 4
     students = []
     while i < sheet.max_row and sheet.cell(i, 2).value is not None:
-        students.append((i + 1, sheet.cell(i, 2).value))
+        students.append((i, sheet.cell(i, 2).value))
         i += 1
     return students
 

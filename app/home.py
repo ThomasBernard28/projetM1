@@ -1,6 +1,6 @@
 import streamlit as st
-import dataLoader as dl
-import xlsxLoader as xl
+import xlsLoader as xl
+import xlsxLoader as xlx
 import pandas as pd
 from tempfile import NamedTemporaryFile
 
@@ -11,7 +11,10 @@ st.set_page_config(
 
 st.write("# Welcome to the report visualisation app, this is the main page! 👋")
 
-uploaded_file = st.file_uploader("Please choose the report you want to load", type=["xls", "xlsx"])
+try:
+    uploaded_file = st.file_uploader("Please choose the report you want to load", type=["xls", "xlsx"])
+except:
+    raise Exception("The file format must be .xls or .xlsx")
 
 
 def get_a_dataframe_by_sheet(wb, sheet_name):
@@ -19,21 +22,23 @@ def get_a_dataframe_by_sheet(wb, sheet_name):
     return df
 
 
+# This function is used to call the loaders functions
 def load_file(file_path, xls=False):
     if xls:
-        return dl.convert_to_xlsx(file_path)
+        return xl.convert_to_xlsx(file_path)
     else:
-        return xl.parse_file(file_path)
+        return xlx.parse_file(file_path)
 
 
 if uploaded_file is not None:
+    # We check the extension of the file which must be .xls or .xlsx
     if uploaded_file.name.endswith(".xls"):
         with NamedTemporaryFile(dir="../resources/", delete=False, suffix=".xls") as file:
             file.write(uploaded_file.getbuffer())
             wb = load_file(file.name, True)
-            st.write(get_a_dataframe_by_sheet(wb, "B2"))
+            st.write(get_a_dataframe_by_sheet(wb, "Nom"))
     else:
         with NamedTemporaryFile(dir="../resources/", delete=False, suffix=".xlsx") as file:
             file.write(uploaded_file.getbuffer())
             wb = load_file(file.name, False)
-            st.write(get_a_dataframe_by_sheet(wb, "B2"))
+            st.write(get_a_dataframe_by_sheet(wb, "B3"))
