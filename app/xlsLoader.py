@@ -90,8 +90,3 @@ def find_all_students(sheet_xls):
         students.append((i + 1, sheet_xls.cell_value(i, 1)))
         i += 1
     return students
-
-
-def get_a_dataframe_by_sheet(wb, sheet_name):
-    df = pd.DataFrame(wb[sheet_name].values)
-    return df

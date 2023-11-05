@@ -1,7 +1,9 @@
+import os
 import streamlit as st
 import xlsLoader as xl
 import xlsxLoader as xlx
-import pandas as pd
+import dataExplorer as de
+
 from tempfile import NamedTemporaryFile
 
 st.set_page_config(
@@ -13,13 +15,9 @@ st.write("# Welcome to the report visualisation app, this is the main page! 👋
 
 try:
     uploaded_file = st.file_uploader("Please choose the report you want to load", type=["xls", "xlsx"])
+
 except:
     raise Exception("The file format must be .xls or .xlsx")
-
-
-def get_a_dataframe_by_sheet(wb, sheet_name):
-    df = pd.DataFrame(wb[sheet_name].values)
-    return df
 
 
 # This function is used to call the loaders functions
@@ -36,9 +34,13 @@ if uploaded_file is not None:
         with NamedTemporaryFile(dir="../resources/", delete=False, suffix=".xls") as file:
             file.write(uploaded_file.getbuffer())
             wb = load_file(file.name, True)
-            st.write(get_a_dataframe_by_sheet(wb, "Nom"))
+            st.write(de.get_student_results_from_one_sheet(wb, "Jade", "B1"))
+            #st.write(de.get_a_dataframe_by_sheet(wb, "Nom"))
+        os.remove(file.name)
+
     else:
         with NamedTemporaryFile(dir="../resources/", delete=False, suffix=".xlsx") as file:
             file.write(uploaded_file.getbuffer())
             wb = load_file(file.name, False)
-            st.write(get_a_dataframe_by_sheet(wb, "B3"))
+            st.write(de.get_a_dataframe_by_sheet(wb, "B3"))
+        os.remove(file.name)
