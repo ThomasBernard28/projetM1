@@ -1,9 +1,7 @@
 import os
 import streamlit as st
-import xlsLoader as xl
-import xlsxLoader as xlx
+from backend import xlsLoader as xl, xlsxLoader as xlx
 import dataExplorer as de
-import matplotlib.pyplot as plt
 
 from tempfile import NamedTemporaryFile
 
