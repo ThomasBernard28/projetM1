@@ -40,7 +40,7 @@ def convert_to_xlsx(file_path):
 
                     elif sheet_xls.cell_type(row, col) == xlrd.XL_CELL_EMPTY and (col > 1 and row > 2):
                         if col > 1 and row > 2:
-                            row_data.append("NP")
+                            row_data.append(None)
                         else:
                             row_data.append(None)
 

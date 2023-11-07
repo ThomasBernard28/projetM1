@@ -3,6 +3,7 @@ import streamlit as st
 import xlsLoader as xl
 import xlsxLoader as xlx
 import dataExplorer as de
+import matplotlib.pyplot as plt
 
 from tempfile import NamedTemporaryFile
 
@@ -34,8 +35,8 @@ if uploaded_file is not None:
         with NamedTemporaryFile(dir="../resources/", delete=False, suffix=".xls") as file:
             file.write(uploaded_file.getbuffer())
             wb = load_file(file.name, True)
-            st.write(de.get_student_results_from_one_sheet(wb, "Jade", "B1"))
-            #st.write(de.get_a_dataframe_by_sheet(wb, "Nom"))
+            df = de.get_student_results_from_one_sheet(wb,"Camille", "B2")
+            st.line_chart(df.set_index('Test Number')['Results'])
         os.remove(file.name)
 
     else:
