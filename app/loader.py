@@ -1,6 +1,14 @@
-from openpyxl import Workbook
+import xlsLoader as xl
+import xlsxLoader as xlx
 import pandas as pd
 import numpy as np
+
+
+def load_file(file_path, xls=False):
+    if xls:
+        return xl.convert_to_xlsx(file_path)
+    else:
+        return xlx.parse_file(file_path)
 
 
 def get_a_dataframe_by_sheet(wb, sheet_name):
@@ -27,6 +35,13 @@ def get_student_results_from_one_sheet(wb, student_name, sheet_name):
         df = df.sort_values(by='Test Number')
         df = df.sort_values(by='Results', ascending=False)
         return df
+
+
+def get_student_results(workbook, student_name):
+    all_periods = []
+    for worksheet in workbook.sheetnames:
+        all_periods.append(get_student_results_from_one_sheet(workbook, student_name, worksheet))
+    return all_periods
 
 
 def find_student_index(names_sheet, student_name):

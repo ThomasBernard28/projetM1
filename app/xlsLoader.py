@@ -61,7 +61,7 @@ def convert_to_xlsx(file_path):
     default_sheet = wb["Sheet"]
     wb.remove(default_sheet)
 
-    return wb
+    return wb, students, class_name,
 
 
 def find_total_or_blank_index(sheet_xls):

@@ -1,7 +1,6 @@
 import os
 import streamlit as st
-from backend import xlsLoader as xl, xlsxLoader as xlx
-import dataExplorer as de
+from app import xlsLoader as xl, xlsxLoader as xlx
 
 from tempfile import NamedTemporaryFile
 

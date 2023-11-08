@@ -50,7 +50,7 @@ def parse_file(file_path):
     default_sheet = parsed_workbook["Sheet"]
     parsed_workbook.remove(default_sheet)
 
-    return parsed_workbook
+    return parsed_workbook, students, class_name
 
 
 def find_blank_index(sheet):
