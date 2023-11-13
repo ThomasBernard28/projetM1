@@ -1,92 +1,89 @@
-from openpyxl import Workbook, load_workbook
 import xlrd
-import pandas as pd
+from openpyxl import Workbook
 
 
-def convert_to_xlsx(file_path):
-    # As openpyxl doesn't support .xls we will convert it to .xlsx using xlrd
+def parse_file(file_path):
+    """
+    As openpyxl doesn't support .xls, we will read and parse the file with xlrd,
+    and then we will store the result of the parsing inside an openpyxl workbook
+    """
+
     workbook_xls = xlrd.open_workbook(file_path)
-    wb = Workbook()
+    workbook = Workbook()
 
-    # I use the nameSheet "blank" index of the name_sheet as a break index because
-    # the list of results stops after the last student.
+    """ 
+    In the file we have a worksheet that contains the students' name, this
+    This sheet is then used in order to copy the names in other sheets, for an
+    easier data analysis we will retrieve theses name during the parsing and replace
+    them in the sheets as we copy the datas
+    """
+
     name_sheet = workbook_xls.sheet_by_name("Nom")
-    break_index_row = find_blank_index(name_sheet)
+
+    # There are useless lines in the file, and we want to find the index of the
+    # last row containing useful datas. We will also retrieve the students
+    break_index_row, students = find_blank_index(name_sheet)
 
     class_name = name_sheet.cell_value(0, 0)
-    students = find_all_students(name_sheet)
 
-    # We will also delete useless sheets and useless infos
-    for sheet_xls in workbook_xls.sheets():
-        # This solution might not be the best, but it is easily editable
-        # Another solution would be to offer the possibility to the user to choose
-        # which sheets he wants to load.
-        if sheet_xls.name in ["Nom", "B1", "B2", "Noel", "B3", "B4", "Exam. Juin"]:
-            ws = wb.create_sheet(title=sheet_xls.name)
+    # We will also delete the sheets that are useless
+    for sheet in workbook_xls.sheets():
+
+        if sheet.name in ["Nom", "B1", "B2", "Noel", "B3", "B4", "Exam. Juin"]:
+            worksheet = workbook.create_sheet(title=sheet.name)
 
             break_index_col = 0
 
-            if sheet_xls.name != "Nom":
-                break_index_col += find_total_or_blank_index(sheet_xls)
-
-            else:
+            if sheet.name == "Nom":
+                # The only information in the names' sheet is the names and so it stops at col 2
                 break_index_col += 2
+            else:
+                # We want to find "Total SSFL" or a blank index in order to prune the sheet
+                break_index_col += find_total_or_blank_index(sheet)
 
             for row in range(break_index_row):
                 row_data = []
                 for col in range(break_index_col):
-                    if sheet_xls.cell_type(row, col) == xlrd.XL_CELL_NUMBER:
-                        row_data.append(sheet_xls.cell_value(row, col))
+                    # If the cell contains a number
+                    row_data.append(sheet.cell_value(row, col))
 
-                    elif sheet_xls.cell_type(row, col) == xlrd.XL_CELL_EMPTY and (col > 1 and row > 2):
-                        if col > 1 and row > 2:
-                            row_data.append(None)
-                        else:
-                            row_data.append(None)
+                    # A solution consists of checking the type of the cell in order
+                    # to replace the empty cells, but I prefer to use dropna or fillna
+                    # from pandas later when I turn the workbook into dataframes
 
-                    else:
-                        row_data.append(sheet_xls.cell_value(row, col))
+                worksheet.append(row_data)
 
-                ws.append(row_data)
-
-            # Adding students names to all sheets
             for student in students:
-                ws['B' + str(student[0])] = student[1]
+                worksheet['B' + str(student[0])] = student[1]
 
-            # Adding class name to all sheets
-            ws['A1'] = class_name
+            worksheet['A1'] = class_name
         else:
             pass
 
-    default_sheet = wb["Sheet"]
-    wb.remove(default_sheet)
+        default_sheet = workbook["Sheet"]
+        workbook.remove(default_sheet)
 
-    return wb
-
-
-def find_total_or_blank_index(sheet_xls):
-    # We start in the second col to avoid the class columns
-    i = 2
-    while i < sheet_xls.ncols:
-        if sheet_xls.cell_value(0, i) == "Total SSFL" or sheet_xls.cell_value(0, i) == "":
-            return i
-        else:
-            i += 1
+        return workbook
 
 
-def find_blank_index(sheet_xls):
-    i = 3
-    while i < sheet_xls.nrows:
-        if sheet_xls.cell_value(i, 1) == "":
-            return i
-        else:
-            i += 1
-
-
-def find_all_students(sheet_xls):
+def find_blank_index(name_sheet):
+    # The row before this index doesn't contain names
     i = 3
     students = []
-    while i < sheet_xls.nrows and sheet_xls.cell_value(i, 1) != "":
-        students.append((i + 1, sheet_xls.cell_value(i, 1)))
-        i += 1
-    return students
+    while i < name_sheet.nrows:
+        # The names are stored in the column with index 1
+        if name_sheet.cell_value(i, 1) == "":
+            return i, students
+        else:
+            students.append((i + 1, name_sheet.cell_value(i, 1)))
+            i += 1
+
+
+def find_total_or_blank_index(sheet):
+    # We start in the third col to avoid the class columns
+    i = 2
+    while i < sheet.ncols:
+        if sheet.cell_value(0, i) == "Total SSFL" or sheet.cell_value(0, i) == "":
+            return i
+        else:
+            i += 1

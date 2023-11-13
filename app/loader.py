@@ -1,7 +1,7 @@
 import pandas as pd
 import openpyxl
-import xlsLoader2 as xls2
-import xlsxLoader2 as xlsx2
+import xlsLoader as xls2
+import xlsxLoader as xlsx2
 
 
 def load_file(file, is_xls):
