@@ -60,10 +60,10 @@ def parse_file(file_path):
         else:
             pass
 
-        default_sheet = workbook["Sheet"]
-        workbook.remove(default_sheet)
+    default_sheet = workbook["Sheet"]
+    workbook.remove(default_sheet)
 
-        return workbook
+    return workbook
 
 
 def find_blank_index(name_sheet):

@@ -29,31 +29,33 @@ class Workspace:
         if self.workbook is not None:
             self.categories = self.find_all_categories()
 
+            self.dataframes = {}
+            for sheet_name in self.workbook.sheetnames:
+                self.dataframes[sheet_name] = pd.DataFrame(self.workbook[sheet_name].values)
+
+            self.students = []
+            i = 4
+            while i < self.workbook["Nom"].max_row:
+                self.students.append(self.workbook["Nom"].cell(i, 2).value)
+                i += 1
+
         else:
             raise TypeError("The Workbook value is None because the initialisation failed")
-
-    def get_categories(self):
-        return self.categories
-
-    def get_workbook(self):
-        return self.workbook
 
     def find_all_categories(self):
         categories = []
         for sheet_name in self.workbook.sheetnames:
-            if sheet_name == "Nom":
-                pass
-            else:
+            if sheet_name != "Nom":
                 sheet = self.workbook[sheet_name]
                 i = 3
-                while i < sheet.max_col:
-                    if sheet.cell(1, i).value in categories:
+                while i < sheet.max_column:
+                    if sheet.cell(3, i).value in categories:
                         i += 1
                     else:
-                        categories.append(sheet.cell(1, i).value)
+                        categories.append(sheet.cell(3, i).value)
 
         return categories
 
     def get_a_dataframe_from_sheet(self, sheet_name):
-        dataframe = pd.DataFrame(self.workbook[sheet_name].values)
+        dataframe = self.dataframes[sheet_name]
         return dataframe
