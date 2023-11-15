@@ -20,7 +20,9 @@ if uploaded_file is not None:
     if uploaded_file.name.endswith(".xls"):
         workspace = Workspace(uploaded_file.getbuffer(), True)
         st.write(workspace.get_a_dataframe_from_sheet("B1"))
-        norm.get_all_student_results(workspace.dataframes, "Jade")
+        results_of_jade = norm.get_all_student_results(workspace.dataframes, "Jade")
+        print(results_of_jade)
+        print(norm.get_student_results_by_period(results_of_jade, ["B1", "B2"]))
 
     else:
         workspace = Workspace(uploaded_file.getbuffer(), False)

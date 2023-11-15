@@ -57,16 +57,18 @@ def find_blank_index(name_sheet):
     students = []
     while i < name_sheet.max_row:
         if name_sheet.cell(i, 2).value is None:
-            return i, students
+            break
         else:
             students.append((i, name_sheet.cell(i, 2).value))
             i += 1
+    return i, students
 
 
 def find_total_or_blank_index(sheet):
     i = 3
     while i < sheet.max_column:
         if sheet.cell(1, i).value == "Total SSFL" or sheet.cell(1, i).value is None:
-            return i
+            break
         else:
             i += 1
+    return i
