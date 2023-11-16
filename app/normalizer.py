@@ -77,13 +77,25 @@ def get_global_class_mean(dataframes):
     class_mean = {}
     for key in dataframes:
         competences = dataframes[key].iloc[2, 2:].values
-        dataframes[key].fillna(0)
+        totals = dataframes[key].iloc[1, 2:].values
         period_means = []
         if key != "Nom":
-            for col in range(2, len(dataframes[key].columns)):
+            for col in range(2, len(dataframes[key].columns) - 2):
+                # It is the number of student that were absent
+                nbr_of_nan = (dataframes[key].iloc[3:, col] == "").sum()
+                # We replace it by 0 so we can sum
+                dataframes[key].iloc[3:, col].replace("", 0, inplace=True)
                 test_sum = dataframes[key].iloc[3:, col].sum()
-                period_means.append((competences[col], test_sum/dataframes[key].rows - 4))
-        class_mean[key] = period_means
+
+                # The mean is computed like this : we divide the test sum by the number of student that did the test
+                # i.e. the number of row - the 3 rows that are not related to grades - the number of student hat were
+                # absent. Then the sum is divided by the test total and multiplied by 20 to get the mean.
+                # Col index starts at 2 for the dataframes but has to start at 0 for the lists it is why there are - 2
+                # Finally the mean is round to decimal
+                test_mean = round(((test_sum/(len(dataframes[key]) - 3 - nbr_of_nan))/totals[col-2])*20, 1)
+
+                period_means.append((competences[col - 2], test_mean))
+            class_mean[key] = period_means
 
     return class_mean
 
