@@ -56,7 +56,7 @@ def convert_workbook_to_dataframe(workbook):
                     record = [student_name, period, test_name, competence, total, result]
                     data.append(record)
 
-    df = pd.DataFrame(data, columns=['Name', 'Period', 'Test Name', 'Competence', 'Total', 'Result'])
+    df = pd.DataFrame(data, columns=['Name', 'Period', 'Test', 'Competence', 'Total', 'Result'])
 
     return df
 
@@ -69,7 +69,6 @@ def find_blank_index(name_sheet):
         if name_sheet.cell(i, 2).value is None:
             break
         else:
-            print(name_sheet.cell(i, 2).value)
             students.append(name_sheet.cell(i, 2).value)
             i += 1
     return i, students
