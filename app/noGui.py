@@ -7,5 +7,6 @@ file_path = "../resources/bulletin.xls"
 
 dataframe = parser.parse_file(file_path, True)
 normalized_df = normalizer.normalize_results(dataframe)
-test, mean = normalizer.get_class_mean_by_test(normalized_df, "Test de Delphine")
-print(test, mean)
+mean = normalizer.get_class_mean_by_test(normalized_df, "Test de Delphine")
+print(mean)
+

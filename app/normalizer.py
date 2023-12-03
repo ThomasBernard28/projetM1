@@ -63,4 +63,4 @@ def get_class_mean_by_test(dataframe, test_name):
 
     mean = test_results['Normalized'].mean()
 
-    return (test_name, mean)
+    return mean
