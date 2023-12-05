@@ -6,7 +6,6 @@ import normalizer
 import pandas as pd
 from tempfile import NamedTemporaryFile
 
-
 st.set_page_config(
     page_title="Report visualization app 📈 "
 )
@@ -16,6 +15,7 @@ try:
 except:
     e = FileNotFoundError("The file wasn't found")
     st.exception(e)
+    st.write("Data not loaded successfully ❌")
 
 if uploaded_file is not None:
 
@@ -30,7 +30,7 @@ if uploaded_file is not None:
     else:
         with NamedTemporaryFile(dir="../resources/", delete=False, suffix=".xlsx") as file:
             file.write(uploaded_file.getbuffer())
-            df = parser.parse_file(file.name, True)
+            df = parser.parse_file(file.name, False)
         os.remove(file.name)
 
     normalized_df = normalizer.normalize_results(df)
@@ -44,7 +44,6 @@ if uploaded_file is not None:
     st.write("Choose the whole class or some students")
 
     chart_data = student_df[['Test', 'Normalized', 'Period']]
-    chart_data.sort_values(by="Test")
     chart_data.dropna(inplace=True)
     st.write(chart_data)
 
@@ -56,14 +55,10 @@ if uploaded_file is not None:
                 "encoding": {
                     "x": {"field": "Test", "type": "ordinal", "sort": {"field": "index"}},
                     "y": {"field": "Normalized", "type": "quantitative"},
-                    "color": {"field": "Period", "type": "nominal"}
+
                 }
             }
         ]
     }
 
     st.vega_lite_chart(chart_data, vega_lite_spec, use_container_width=True)
-
-
-
-

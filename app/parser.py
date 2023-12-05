@@ -21,7 +21,7 @@ def convert_workbook_to_dataframe(workbook):
     :param workbook: The multiple worksheets openpyxl's workbook
     :return: The structured pandas dataframe
     """
-    # data = [["Jade", "B1", "Test 1", "SSFL", 20, 14], ["Julien", "B2", "Test 4", "CA", 15, 10]]
+
     # The data list will contain the records that will be used to create the dataframe
     data = []
 
@@ -44,11 +44,17 @@ def convert_workbook_to_dataframe(workbook):
 
                 for col in range(3, break_index_col):
                     test_name = sheet.cell(1, col).value
+
+                    # If it is .xls then the date is a float
                     if isinstance(test_name, float):
                         # It means that the value is an Excel date
                         # 1/1/1900 is a standard for Excel
                         date_format = datetime.datetime(1900, 1, 1) + datetime.timedelta(days=test_name - 2)
                         test_name = date_format.strftime('%d-%m-%Y')
+                    # If it is .xlsx then the date is datetime with %H:%M:%S
+                    elif isinstance(test_name, datetime.datetime):
+                        test_name = test_name.strftime("%d-%m-%Y")
+
                     total = sheet.cell(2, col).value
                     competence = str(sheet.cell(3, col).value)
                     result = sheet.cell(row, col).value
