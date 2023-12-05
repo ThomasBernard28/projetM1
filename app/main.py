@@ -3,6 +3,8 @@ import os
 import streamlit as st
 import parser
 import normalizer
+import altair as alt
+import ploter
 import pandas as pd
 from tempfile import NamedTemporaryFile
 
@@ -35,20 +37,11 @@ if uploaded_file is not None:
             df = parser.parse_file(file.name, False)
         os.remove(file.name)
 
-    vega_lite_spec = {
-        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-        "layer": [
-            {
-                "mark": {"type": "line", "point": True},
-                "encoding": {
-                    "x": {"field": "Test", "type": "ordinal", "sort": {"field": "index"}},
-                    "y": {"field": "Normalized", "type": "quantitative"},
-                }
-            }
-        ]
-    }
-
     normalized_df = normalizer.normalize_results(df)
+
+    means_df = normalizer.get_class_mean_by_test(normalized_df)
+
+    #vega_lite_spec = ploter.default_plot(means_df)
 
     student_df = normalizer.get_all_student_results(normalized_df, "Jade")
 
@@ -66,11 +59,47 @@ if uploaded_file is not None:
 
     st.divider()
 
-    if 'All' in selected_students:
-        means = normalizer.get_class_mean_by_test(normalized_df)
-        vega_lite_spec['layer'][0]['encoding'] = {
-            "x": {"field": "Test", "type": "ordinal", "sort": {"field": "index"}},
-            "y": {"field": "Mean", "type": "quantitative"},
-        }
-        vega_lite_spec['title'] = "Class means by test"
-        st.vega_lite_chart(means, vega_lite_spec, use_container_width=True)
+
+    if len(selected_students) >= 1:
+        for student in selected_students:
+            if student != "All":
+                pass
+
+            else:
+                pass
+
+    #st.vega_lite_chart(means_df, vega_lite_spec, use_container_width=True)
+    circle_chart = alt.Chart(means_df).mark_circle().encode(
+        x='Test:O',
+        y='Mean:Q',
+        tooltip=['Test', 'Mean'],
+        color=alt.value('white')
+    ).interactive()
+
+    line_chart = alt.Chart(means_df).mark_line(strokeDash=[5, 2]).encode(
+        x='Test:O',
+        y='Mean:Q',
+        tooltip=['Test', 'Mean'],
+        color=alt.value('white')
+    ).interactive()
+
+    student_chart = alt.Chart(student_df).mark_line().encode(
+        x='Test:O',
+        y='Normalized:Q',
+        tooltip=['Test', 'Normalized'],
+        color='Name:N'
+    ).interactive()
+
+    chart = circle_chart + line_chart + student_chart
+
+    chart = chart.properties(
+        title='Class mean over the tests'
+    )
+
+    #TODO: Rework le get student results pour accepter de multiples étudiants
+    #TODO: Rework le desing de l'app pour changer de page une fois la feuille chargée
+    #TODO: Gérer la création des plots dans le fichier ploter.
+
+    vega_lite_spec = chart.to_dict()
+
+    st.vega_lite_chart(vega_lite_spec, use_container_width=True)
