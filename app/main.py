@@ -41,7 +41,7 @@ if uploaded_file is not None:
 
     means_df = normalizer.get_class_mean_by_test(normalized_df)
 
-    #vega_lite_spec = ploter.default_plot(means_df)
+    # vega_lite_spec = ploter.default_plot(means_df)
 
     student_df = normalizer.get_all_student_results(normalized_df, "Jade")
 
@@ -59,7 +59,6 @@ if uploaded_file is not None:
 
     st.divider()
 
-
     if len(selected_students) >= 1:
         for student in selected_students:
             if student != "All":
@@ -68,7 +67,7 @@ if uploaded_file is not None:
             else:
                 pass
 
-    #st.vega_lite_chart(means_df, vega_lite_spec, use_container_width=True)
+    # st.vega_lite_chart(means_df, vega_lite_spec, use_container_width=True)
     circle_chart = alt.Chart(means_df).mark_circle().encode(
         x='Test:O',
         y='Mean:Q',
@@ -96,9 +95,9 @@ if uploaded_file is not None:
         title='Class mean over the tests'
     )
 
-    #TODO: Rework le get student results pour accepter de multiples étudiants
-    #TODO: Rework le desing de l'app pour changer de page une fois la feuille chargée
-    #TODO: Gérer la création des plots dans le fichier ploter.
+    # TODO: Rework le get student results pour accepter de multiples étudiants
+    # TODO: Rework le desing de l'app pour changer de page une fois la feuille chargée
+    # TODO: Gérer la création des plots dans le fichier ploter.
 
     vega_lite_spec = chart.to_dict()
 
