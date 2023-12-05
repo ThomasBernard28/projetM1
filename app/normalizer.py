@@ -51,16 +51,26 @@ def get_student_results_by_competence(dataframe, competences):
     return results_by_competence
 
 
-def get_class_mean_by_test(dataframe, test_name):
+def get_class_mean_by_test(dataframe):
     """
-    This method is used to get the mean of a particular test
+    This method is used to get the mean of the class for each test
     :param dataframe: The dataframe
-    :param test_name: The name of the test we want the mean from
-    :return: A tuple containing the test name and the mean
+    :return: A dataframe containing the test name and the mean
     """
-    test_results = dataframe[dataframe['Test'] == test_name].copy()
-    test_results.dropna(subset=['Normalized'], inplace=True)
 
-    mean = test_results['Normalized'].mean()
+    class_means = pd.DataFrame(columns=['Test', 'Period', 'Competence', 'Mean'])
 
-    return mean
+    for test in dataframe.groupby(['Test', 'Period', 'Competence']).groups.keys():
+        test_name, period, competence = test
+
+        test_df = dataframe[(dataframe['Test'] == test_name) & (dataframe['Period'] == period) & (
+                    dataframe['Competence'] == competence)]
+
+        mean_normalized = test_df['Normalized'].mean()
+
+        class_means.loc[len(class_means)] = [test_name, period, competence, mean_normalized]
+
+    class_means = class_means.set_index(['Test', 'Competence', 'Period']).reindex(dataframe.set_index(['Test', 'Competence', 'Period']).index).reset_index()
+    class_means = class_means.drop_duplicates(subset=['Test', 'Competence', 'Period'])
+
+    return class_means
