@@ -12,7 +12,7 @@ def normalize_results(dataframe):
     return dataframe
 
 
-def get_all_student_results(dataframe, student):
+def get_all_student_results(dataframe, students):
     """
     This method is used to get all the results of a particular student.
     :param dataframe: The dataframe resulting from normalization
@@ -20,7 +20,7 @@ def get_all_student_results(dataframe, student):
     :return: A dataframe containing the student results
     """
     # Get all records for 1 student
-    student_results = dataframe[dataframe['Name'] == student]
+    student_results = dataframe[dataframe['Name'].isin(students)]
 
     final_student_df = student_results[['Name', 'Period', 'Test', 'Competence', 'Normalized']]
 
