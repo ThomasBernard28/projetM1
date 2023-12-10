@@ -33,6 +33,7 @@ class Plotter:
         self.chart = self.base_chart
 
     def plot(self, chart):
+        st.empty()
         self.vega_lite_spec = chart.to_dict()
         st.vega_lite_chart(self.vega_lite_spec, use_container_width=True)
 

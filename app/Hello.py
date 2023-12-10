@@ -2,12 +2,13 @@ import os
 import streamlit as st
 import parser
 import normalizer
-import altair as alt
-import plotter
 from tempfile import NamedTemporaryFile
 
 st.set_page_config(
-    page_title="Report visualization app 📈"
+    page_title="Report visualization app",
+    page_icon="📈",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 st.title("Welcome to Report visualizer")
