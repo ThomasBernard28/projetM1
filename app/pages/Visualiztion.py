@@ -7,9 +7,9 @@ import streamlit as st
 
 
 def initialize_page():
-    st.title("Results visualization")
+    st.title("Visualisation des résultats")
     st.sidebar.title("Navigation")
-    return st.sidebar.radio("Go to", ["Visualization"])
+    return st.sidebar.radio("Go to", ["Visualisation"])
 
 
 def update_chart(students, base_plot):
@@ -27,7 +27,7 @@ def insert_student_in_chart(students, _plot):
 if hasattr(st.session_state, 'normalized_df'):
     page = initialize_page()
 
-    if page == "Visualization":
+    if page == "Visualisation":
         st.session_state.name_list = st.session_state.normalized_df['Name'].unique().tolist()
 
         st.divider()
@@ -41,7 +41,7 @@ if hasattr(st.session_state, 'normalized_df'):
 
         with col1:
             selected_students = st.multiselect(
-                'Select one or more students',
+                'Sélectionnez un ou plusieurs élèves',
                 st.session_state.name_list,
             )
 
