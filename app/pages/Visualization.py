@@ -73,7 +73,7 @@ if hasattr(st.session_state, 'normalized_df'):
         plot_container = st.empty()
 
         if not hasattr(st.session_state, 'base_plot'):
-            st.session_state.base_plot = plotter2.Plotter2(st.session_state.normalized_df)
+            st.session_state.base_plot = plotter.Plotter(st.session_state.normalized_df)
             display(st.session_state.base_plot)
 
         if selected_students:

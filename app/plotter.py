@@ -2,7 +2,7 @@ import altair as alt
 import normalizer as norm
 
 
-class Plotter2:
+class Plotter:
     chart_specs = None
     chart = None
     means_dataframe = None
