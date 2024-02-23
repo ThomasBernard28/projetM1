@@ -54,6 +54,8 @@ if hasattr(st.session_state, 'normalized_df'):
 
         #TODO Attention problème lorsque l'on sélectionne des périodes ça ne marche pas
         #TODO Si on enlève des élèves et que périodes sélectionnées ils ne disparaissent pas
+        #TODO hint : Il faudrait modifier la gestion du graphique le problème a l'air de venir
+        #TODO de l'accumulation de l'information au sein du graphe.
 
         col1, col2 = st.columns([1, 2])
 
