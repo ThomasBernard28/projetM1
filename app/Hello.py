@@ -33,5 +33,4 @@ if uploaded_file is not None:
     st.session_state.normalized_df = normalized_df
 
     # Redirect to the next page
-    st.sidebar.success("Fichier chargé! Rendez vous à la page suivante.")
-    st.rerun()
+    st.sidebar.success("Fichier chargé! Rendez vous à la page de visualisation.")
