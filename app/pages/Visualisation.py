@@ -102,3 +102,7 @@ if hasattr(st.session_state, 'normalized_df'):
                 st.session_state.base_plot.hide_means()
                 display(st.session_state.base_plot)
 
+        if show_means:
+            st.session_state.base_plot.show_means()
+            display(st.session_state.base_plot)
+

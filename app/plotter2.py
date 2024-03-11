@@ -3,7 +3,6 @@ import normalizer as norm
 
 
 class Plotter2:
-
     chart = None
     line_chart = None
     circle_chart = None
@@ -13,7 +12,8 @@ class Plotter2:
         self.class_means_df = norm.get_class_mean_by_test(class_df)
 
     def create_means_line_chart(self):
-        self.means_line_chart = alt.Chart(self.class_means_df, title="Moyenne de la classe").mark_line(strokeDash=[4.1]).encode(
+        self.means_line_chart = alt.Chart(self.class_means_df, title="Moyenne de la classe").mark_line(
+            strokeDash=[4.1]).encode(
             alt.X('Test:O', sort=self.class_means_df['Test'].tolist()).title('Nom du test'),
             alt.Y('Mean:Q').title('Moyenne de la classe'),
             tooltip=['Test', 'Mean'],
@@ -48,12 +48,13 @@ class Plotter2:
         self.chart = None
 
     def hide_means(self):
-        self.chart = self.line_chart + self.circle_chart
+        if self.line_chart is not None and self.circle_chart is not None:
+            self.chart = self.line_chart + self.circle_chart
+        else:
+            pass
 
     def show_means(self):
         self.chart += self.means_line_chart
 
     def tospecs(self):
         return self.chart.to_dict()
-
-
