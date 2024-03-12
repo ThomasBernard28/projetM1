@@ -12,8 +12,27 @@ def initialize_page():
     return st.sidebar.radio("Go to", ["Visualisation"])
 
 
-def update_chart(students, _plot):
-    insert_student_in_chart(students, _plot)
+def update_chart(_plot, students, periods):
+    print(selected_students)
+    insert_in_chart(_plot, students, periods)
+
+
+def insert_in_chart(_plot, students, periods):
+    if len(students) >= 1:
+        st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df, students)
+        if len(periods) >= 1:
+            st.session_state.period_df = normalizer.get_results_by_period(st.session_state.student_df, periods)
+            _plot.create_line_and_circle_chart(st.session_state.period_df)
+        else:
+            _plot.create_line_and_circle_chart(st.session_state.student_df)
+
+    else:
+        if len(periods) >= 1:
+            st.session_state.period_df = normalizer.get_results_by_period(st.session_state.normalized_df,periods)
+            _plot.create_means_line_chart_by_period(st.session_state.period_df)
+
+    _plot.add_infos()
+    display(_plot)
 
 
 def filter_by_period(periods, _plot):
@@ -33,7 +52,6 @@ def insert_student_in_chart(students, _plot):
     if len(students) >= 1:
         st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df, students)
 
-        #_plot.add_students(st.session_state.student_df)
         _plot.create_line_and_circle_chart(st.session_state.student_df)
         _plot.add_students()
         display(_plot)
@@ -77,32 +95,28 @@ if hasattr(st.session_state, 'normalized_df'):
         plot_container = st.empty()
 
         if not hasattr(st.session_state, 'base_plot'):
-            #st.session_state.base_plot = plotter.Plotter(st.session_state.normalized_df)
-            #display(st.session_state.base_plot)
-
             st.session_state.base_plot = plotter2.Plotter2(st.session_state.normalized_df)
             st.session_state.base_plot.create_means_line_chart()
-            st.session_state.base_plot.reset_chart_to_means()
-            display(st.session_state.base_plot)
-
-        if selected_students:
-            update_chart(selected_students, st.session_state.base_plot)
-        else:
-            st.session_state.base_plot.reset_chart_to_means()
-            display(st.session_state.base_plot)
-
-        if all_students:
-            update_chart(st.session_state.name_list, st.session_state.base_plot)
-
-        if selected_periods:
-            filter_by_period(selected_periods, st.session_state.base_plot)
 
         if not show_means:
             if selected_students:
                 st.session_state.base_plot.hide_means()
                 display(st.session_state.base_plot)
 
-        if show_means:
+        else:
             st.session_state.base_plot.show_means()
             display(st.session_state.base_plot)
 
+        if selected_students:
+            update_chart(st.session_state.base_plot, selected_students, selected_periods)
+        else:
+            st.session_state.base_plot.reset_chart_to_means()
+            display(st.session_state.base_plot)
+
+        if all_students:
+            update_chart(st.session_state.base_plot, st.session_state.name_list, selected_periods)
+
+        if selected_periods:
+            st.session_state.base_plot.hide_means()
+            update_chart(st.session_state.base_plot, selected_students, selected_periods)
+            # filter_by_period(selected_periods, st.session_state.base_plot)

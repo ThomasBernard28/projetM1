@@ -27,7 +27,7 @@ def get_all_student_results(dataframe, students):
     return final_student_df
 
 
-def get_student_results_by_period(dataframe, periods):
+def get_results_by_period(dataframe, periods):
     """
     This method is used to get all the results for one or more periods
     :param dataframe: The dataframe resulting from normalization
