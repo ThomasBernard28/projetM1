@@ -7,23 +7,20 @@ class Plotter2:
     line_chart = None
     circle_chart = None
     means_line_chart = None
+    period_df = None
 
     def __init__(self, class_df):
         self.class_means_df = norm.get_class_mean_by_test(class_df)
 
-    def create_means_line_chart(self):
-        self.means_line_chart = alt.Chart(self.class_means_df, title="Moyenne de la classe").mark_line(
+    def create_means_line_chart(self, periods=None):
+        if periods is not None and len(periods) > 0:
+            print("Periods: ", periods)
+            self.period_df = norm.get_results_by_period(self.class_means_df, periods)
+        else:
+            self.period_df = self.class_means_df
+        self.means_line_chart = alt.Chart(self.period_df, title="Moyenne de la classe").mark_line(
             strokeDash=[4.1]).encode(
-            alt.X('Test:O', sort=self.class_means_df['Test'].tolist()).title('Nom du test'),
-            alt.Y('Mean:Q').title('Résultat obtenu'),
-            tooltip=['Test', 'Mean'],
-            color=alt.value('white')
-        )
-
-    def create_means_line_chart_by_period(self, period_df):
-        self.means_line_chart = alt.Chart(period_df, title="Moyenne de la classe").mark_line(
-            strokeDash=[4.1]).encode(
-            alt.X('Test:O', sort=period_df['Test'].tolist()).title('Nom du test'),
+            alt.X('Test:O', sort=self.period_df['Test'].tolist()).title('Nom du test'),
             alt.Y('Mean:Q').title('Résultat obtenu'),
             tooltip=['Test', 'Mean'],
             color=alt.value('white')

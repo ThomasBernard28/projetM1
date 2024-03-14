@@ -13,7 +13,6 @@ def initialize_page():
 
 
 def update_chart(_plot, students, periods):
-    print(selected_students)
     insert_in_chart(_plot, students, periods)
 
 
@@ -23,13 +22,14 @@ def insert_in_chart(_plot, students, periods):
         if len(periods) >= 1:
             st.session_state.period_df = normalizer.get_results_by_period(st.session_state.student_df, periods)
             _plot.create_line_and_circle_chart(st.session_state.period_df)
+            _plot.create_means_line_chart(periods)
         else:
             _plot.create_line_and_circle_chart(st.session_state.student_df)
 
     else:
-        if len(periods) >= 1:
-            st.session_state.period_df = normalizer.get_results_by_period(st.session_state.normalized_df,periods)
-            _plot.create_means_line_chart_by_period(st.session_state.period_df)
+        if len(periods) >= 0:
+            # st.session_state.period_df = normalizer.get_results_by_period(st.session_state.normalized_df,periods)
+            _plot.create_means_line_chart(periods)
 
     _plot.add_infos()
     display(_plot)
@@ -120,3 +120,5 @@ if hasattr(st.session_state, 'normalized_df'):
             st.session_state.base_plot.hide_means()
             update_chart(st.session_state.base_plot, selected_students, selected_periods)
             # filter_by_period(selected_periods, st.session_state.base_plot)
+        else:
+            update_chart(st.session_state.base_plot, selected_students, selected_periods)
