@@ -58,7 +58,7 @@ def get_class_mean_by_test(dataframe):
     :return: A dataframe containing the test name and the mean
     """
 
-    class_means = pd.DataFrame(columns=['Test', 'Period', 'Competence', 'Mean'])
+    class_means = pd.DataFrame(columns=['Test', 'Period', 'Competence', 'Mean', "Q1", "Q3"])
 
     for test in dataframe.groupby(['Test', 'Period', 'Competence']).groups.keys():
         test_name, period, competence = test
@@ -68,7 +68,9 @@ def get_class_mean_by_test(dataframe):
 
         mean_normalized = test_df['Normalized'].mean()
 
-        class_means.loc[len(class_means)] = [test_name, period, competence, mean_normalized]
+        quantiles = test_df['Normalized'].quantile([0.25, 0.75])
+
+        class_means.loc[len(class_means)] = [test_name, period, competence, mean_normalized, quantiles[0.25], quantiles[0.75]]
 
     class_means = class_means.set_index(['Test', 'Competence', 'Period']).reindex(dataframe.set_index(['Test', 'Competence', 'Period']).index).reset_index()
     class_means = class_means.drop_duplicates(subset=['Test', 'Competence', 'Period'])

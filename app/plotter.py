@@ -1,68 +1,85 @@
-import altair as alt
+import altair
 import normalizer as norm
 
 
 class Plotter:
-    chart_specs = None
     chart = None
-    means_dataframe = None
+    line_chart = None
+    circle_chart = None
     means_line_chart = None
+    means_circle_chart = None
 
-    def __init__(self, dataframe):
-        self.means_dataframe = norm.get_class_mean_by_test(dataframe)
+    def __init__(self, *args):
+        # Then not the basic chart
+        if len(args) == 5:
+            self.create_line_and_circle_chart(args[0])
+            self.chart = self.line_chart + self.circle_chart
+            if args[1]:
+                self.class_means_df = norm.get_class_mean_by_test(args[2])
+                if len(args[3]) > 0:
+                    self.class_means_df = norm.get_results_by_period(self.class_means_df, args[3])
 
-        self.means_line_chart = alt.Chart(self.means_dataframe).mark_line(strokeDash=[4.1]).encode(
-            alt.X('Test:O', sort=dataframe['Test'].tolist()).title('Nom du test'),
-            alt.Y('Mean:Q').title('Résultat obtenu'),
+                if len(args[4]) > 0:
+                    self.class_means_df = norm.get_student_results_by_competence(self.class_means_df, args[4])
+
+                self.create_means_line_chart()
+                self.chart += self.means_line_chart
+
+        # The basic chart
+        elif len(args) == 2:
+            self.class_means_df = norm.get_class_mean_by_test(args[0])
+            self.create_means_line_chart()
+            self.create_means_circle_chart()
+            self.chart = self.means_line_chart + self.means_circle_chart
+
+        else:
+            raise ValueError("Invalid number of arguments")
+
+    def create_means_line_chart(self):
+        self.means_line_chart = altair.Chart(self.class_means_df).mark_line(strokeDash=[4.1]).encode(
+            altair.X('Test:O', sort=self.class_means_df['Test'].tolist()).title(
+                'Nom du test'),
+            altair.Y('Mean:Q', axis=altair.Axis(tickCount=20)).title('Résultat obtenu'),
+            color=altair.value('white')
+        ).properties(width=600, height=500)
+
+    def create_means_circle_chart(self):
+        self.means_circle_chart = altair.Chart(self.class_means_df).mark_circle().encode(
+            altair.X('Test:O', sort=self.class_means_df['Test'].tolist()).title(
+                'Nom du test'),
+            altair.Y('Mean:Q', axis=altair.Axis(tickCount=20)).title('Résultat obtenu'),
             tooltip=['Test', 'Mean'],
-            color=alt.value('white')
-        ).interactive()
+            color=altair.value('green')
+        ).properties(width=600, height=500)
 
-        self.means_line_chart.properties(title="Chart of the class mean")
-
-        self.chart = self.means_line_chart
-
-    def add_students(self, student_df):
-        student_chart = alt.Chart(student_df).mark_line().encode(
-            alt.X('Test:O', sort=student_df['Test'].tolist()).title('Nom du test'),
-            alt.Y('Normalized:Q').title('Résultat obtenu'),
+    def create_line_and_circle_chart(self, df, title=""):
+        self.line_chart = altair.Chart(df, title=title).mark_line().encode(
+            altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
+            altair.Y('Normalized:Q', axis=altair.Axis(tickCount=20)).title('Résultat obtenu'),
             color='Name:N'
-        ).interactive()
-        self.chart.properties(title="Chart of students results compared to class mean")
-        self.chart = self.means_line_chart
-        self.chart += student_chart
+        ).properties(width=600, height=500)
 
-        student_ball_chart = alt.Chart(student_df).mark_circle().encode(
-            alt.X('Test:O', sort=student_df['Test'].tolist()).title('Nom du test'),
-            alt.Y('Normalized:Q').title('Résultat obtenu'),
+        self.circle_chart = altair.Chart(df, title=title).mark_circle().encode(
+            altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
+            altair.Y('Normalized:Q', axis=altair.Axis(tickCount=20)).title('Résultat obtenu'),
             tooltip=['Test', 'Normalized', 'Period'],
             color='Name:N'
-        ).interactive()
-        self.chart += student_ball_chart
+        ).properties(width=600, height=500)
 
-    def by_period(self, period_df):
-        self.chart = None
-        student_chart = alt.Chart(period_df).mark_line().encode(
-            alt.X('Test:O', sort=period_df['Test'].tolist()).title('Nom du test'),
-            alt.Y('Normalized:Q').title('Résultat obtenu'),
-            color='Name:N'
-        ).interactive()
-        self.chart = student_chart
-        self.chart.properties(title="Chart of students results compared to class mean")
+    def show_means(self, df):
+        self.class_means_df = norm.get_class_mean_by_test(df)
+        self.create_means_line_chart()
 
-        student_ball_chart = alt.Chart(period_df).mark_circle().encode(
-            alt.X('Test:O', sort=period_df['Test'].tolist()).title('Nom du test'),
-            alt.Y('Normalized:Q').title('Résultat obtenu'),
-            tooltip=['Test', 'Normalized', 'Period'],
-            color='Name:N'
-        ).interactive()
-        self.chart += student_ball_chart
+        if self.chart is None:
+            self.chart = self.means_line_chart
 
+        else:
+            self.chart += self.means_line_chart
 
-    def tospecs(self):
-        self.chart_specs = self.chart.to_dict()
-        return self.chart_specs
+    def hide_means(self):
+        self.means_line_chart = None
 
-    def reset(self):
-        self.chart = self.means_line_chart
+        self.chart = self.line_chart + self.circle_chart
 
+    def to_specs(self):
+        return self.chart.to_dict()

@@ -1,8 +1,8 @@
 import sys
 
-# In order to import from parent directory
 sys.path.append("..")
-from app import plotter, normalizer, plotter2
+
+from app import normalizer, plotter
 import streamlit as st
 
 
@@ -12,113 +12,87 @@ def initialize_page():
     return st.sidebar.radio("Go to", ["Visualisation"])
 
 
-def update_chart(_plot, students, periods):
-    insert_in_chart(_plot, students, periods)
-
-
-def insert_in_chart(_plot, students, periods):
-    if len(students) >= 1:
-        st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df, students)
-        if len(periods) >= 1:
-            st.session_state.period_df = normalizer.get_results_by_period(st.session_state.student_df, periods)
-            _plot.create_line_and_circle_chart(st.session_state.period_df)
-            _plot.create_means_line_chart(periods)
-        else:
-            _plot.create_line_and_circle_chart(st.session_state.student_df)
-
-    else:
-        if len(periods) >= 0:
-            # st.session_state.period_df = normalizer.get_results_by_period(st.session_state.normalized_df,periods)
-            _plot.create_means_line_chart(periods)
-
-    _plot.add_infos()
-    display(_plot)
-
-
-def filter_by_period(periods, _plot):
-    if len(periods) >= 1:
-        if hasattr(st.session_state, 'student_df'):
-            period_df = normalizer.get_student_results_by_period(st.session_state.student_df, periods)
-            _plot.by_period(period_df)
-            display(_plot)
-        else:
-            period_df = normalizer.get_student_results_by_period(st.session_state.normalized_df,
-                                                                 st.session_state.periods)
-            _plot.by_period(period_df, )
-            display(_plot)
-
-
-def insert_student_in_chart(students, _plot):
-    if len(students) >= 1:
-        st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df, students)
-
-        _plot.create_line_and_circle_chart(st.session_state.student_df)
-        _plot.add_students()
-        display(_plot)
-
-
-def display(_plot):
-    chart_specs = _plot.tospecs()
-    plot_container.vega_lite_chart(chart_specs, use_container_width=True)
+def display(_plot, container):
+    chart_specs = _plot.to_specs()
+    container.vega_lite_chart(chart_specs, use_container_width=True)
 
 
 if hasattr(st.session_state, 'normalized_df'):
     page = initialize_page()
 
     if page == "Visualisation":
-        st.session_state.name_list = st.session_state.normalized_df['Name'].unique().tolist()
+        st.session_state.name_list = st.session_state.normalized_df["Name"].unique()
 
-        selected_students = st.multiselect(
-            'Sélectionnez un ou plusieurs élèves',
-            st.session_state.name_list
-        )
+        tab1, tab2 = st.tabs(["Visualisation Globale", "Visualisation par élève"])
 
-        # TODO Attention problème lorsque l'on sélectionne des périodes ça ne marche pas
-        # TODO Si on enlève des élèves et que périodes sélectionnées ils ne disparaissent pas
-        # TODO utiliser st.tabs pour faire des tabs avec différentes vues
+        with tab1:
+            st.header("Visualisation Globale")
+            global_plot_container = st.empty()
+            if not hasattr(st.session_state, 'global_plot'):
+                st.session_state.global_plot = plotter.Plotter(st.session_state.normalized_df, True)
 
-        col1, col2 = st.columns([1, 2])
+            display(st.session_state.global_plot, global_plot_container)
 
-        with col1:
-            all_students = st.checkbox("Afficher tous les élèves")
-            show_means = st.checkbox("Afficher la moyenne", True)
+        with tab2:
+            #st.header("Visualisation par élève")
 
-        with col2:
-            st.session_state.periods = st.session_state.normalized_df['Period'].unique().tolist()
-            selected_periods = st.multiselect(
-                'Sélectionnez une ou plusieurs périodes',
-                st.session_state.periods
-            )
+            st.session_state.periods = st.session_state.normalized_df["Period"].unique().tolist()
+            st.session_state.competences = st.session_state.normalized_df["Competence"].unique().tolist()
 
-        st.divider()
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                st.write("Sélection des élèves")
+                with st.expander("Afficher la sélection"):
+                    selected_students = st.multiselect(
+                        "Elèves à afficher",
+                        st.session_state.name_list,
+                        placeholder="Sélectionnez un ou plusieurs élèves"
+                    )
 
-        plot_container = st.empty()
+            with col2:
+                st.write("Options de filtrage")
+                with st.expander("Afficher les options"):
+                    col21, col22 = st.columns([1, 1])
 
-        if not hasattr(st.session_state, 'base_plot'):
-            st.session_state.base_plot = plotter2.Plotter2(st.session_state.normalized_df)
-            st.session_state.base_plot.create_means_line_chart()
+                    with col21:
+                        selected_periods = st.multiselect(
+                            "Périodes à afficher",
+                            st.session_state.periods,
+                            placeholder="Sélectionnez une ou plusieurs périodes"
+                        )
 
-        if not show_means:
-            if selected_students:
-                st.session_state.base_plot.hide_means()
-                display(st.session_state.base_plot)
+                    with col22:
+                        selected_competences = st.multiselect(
+                            "Compétences à afficher",
+                            st.session_state.competences,
+                            placeholder="Sélectionnez une ou plusieurs compétences"
+                        )
+                    show_means = st.checkbox("Afficher la moyenne", False)
 
-        else:
-            st.session_state.base_plot.show_means()
-            display(st.session_state.base_plot)
+            with st.expander("Cliquer pour voir les options de normalisation"):
+                st.write("Les options de normalisation permettent de filtrer les données affichées.")
 
-        if selected_students:
-            update_chart(st.session_state.base_plot, selected_students, selected_periods)
-        else:
-            st.session_state.base_plot.reset_chart_to_means()
-            display(st.session_state.base_plot)
+            st.divider()
 
-        if all_students:
-            update_chart(st.session_state.base_plot, st.session_state.name_list, selected_periods)
+            student_plot_container = st.empty()
 
-        if selected_periods:
-            st.session_state.base_plot.hide_means()
-            update_chart(st.session_state.base_plot, selected_students, selected_periods)
-            # filter_by_period(selected_periods, st.session_state.base_plot)
-        else:
-            update_chart(st.session_state.base_plot, selected_students, selected_periods)
+            if not hasattr(st.session_state, 'student_plot'):
+                st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df, selected_students)
+                st.session_state.student_plot = plotter.Plotter(st.session_state.student_df, show_means)
+                display(st.session_state.student_plot, student_plot_container)
+
+            if selected_students or show_means or selected_periods or selected_competences:
+                st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df, selected_students)
+
+                if selected_periods:
+                    st.session_state.student_df = normalizer.get_results_by_period(st.session_state.student_df, selected_periods)
+
+                if selected_competences:
+                    st.session_state.student_df = normalizer.get_student_results_by_competence(st.session_state.student_df, selected_competences)
+
+                st.session_state.student_plot = plotter.Plotter(st.session_state.student_df, show_means, st.session_state.normalized_df, selected_periods, selected_competences)
+                display(st.session_state.student_plot, student_plot_container)
+
+            if not show_means and selected_students:
+                st.session_state.student_plot.hide_means()
+                display(st.session_state.student_plot, student_plot_container)
