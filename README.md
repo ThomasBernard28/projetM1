@@ -1,4 +1,5 @@
 ![CodeQL](https://github.com/ThomasBernard28/projetM1/actions/workflows/codeql.yml/badge.svg)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/ThomasBernard28/projetM1/badge)](https://securityscorecards.dev/viewer/?uri=github.com/ThomasBernard28/projetM1)
 
 # Projet de Master 1 : Application de visualisation de résultats scolaires.
 
