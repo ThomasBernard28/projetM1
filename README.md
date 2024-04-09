@@ -1,3 +1,5 @@
+![CodeQL](https://github.com/ThomasBernard28/projetM1/actions/workflows/codeql.yml/badge.svg)
+
 # Projet de Master 1 : Application de visualisation de résultats scolaires.
 
 ## Objectif de l'application : 
