@@ -11,4 +11,20 @@ Le but de cette application est de visualiser dans une interface web développé
 - Comparer les élèves entre eux ou par rapport à la classe entière pour une, plusieurs ou toutes les compétences.
 - Vision normalisée des résultats des étudiants en regard du reste de la classe.
 
-## README Sujet à modification au cours de l'évolution du projet.
+## Pré-requis:
+
+- Python 3.11
+- Idéalement la création d'un _Python Virtual Environment (venv)_ pour l'installation desdépendances
+
+## Comment exécuter le code:
+
+1. Cloner le repository
+2. Créer le venv et l'activer
+3. Installer les dépendances à l'aide de pip avec la commande suivante :
+   ```
+   pip install -r requirements.txt
+   ```
+4. Exécuter l'application à l'aide de la commande suivante:
+   ```
+   streamlit run app/Hello.py
+   ```
