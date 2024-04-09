@@ -5,6 +5,7 @@ sys.path.append("..")
 from app import normalizer, plotter
 import streamlit as st
 
+#Test Code QL
 
 def initialize_page():
     st.title("Visualisation des résultats")
