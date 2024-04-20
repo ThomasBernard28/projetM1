@@ -13,7 +13,7 @@ st.set_page_config(
 
 st.title("Bienvenue")
 
-uploaded_file = st.file_uploader("Choisissez le bulletin que vous voulez exploiter", type=["xls", "xlsx"])
+uploaded_file = st.file_uploader("Choisissez le bulletin que vous voulez exploiter", type=["xls", "xlsx"], )
 
 if uploaded_file is not None:
     if uploaded_file.name.endswith(".xls"):

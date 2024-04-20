@@ -5,7 +5,6 @@ sys.path.append("..")
 from app import normalizer, plotter
 import streamlit as st
 
-#Test Code QL
 
 def initialize_page():
     st.title("Visualisation des résultats")
@@ -35,7 +34,6 @@ if hasattr(st.session_state, 'normalized_df'):
             display(st.session_state.global_plot, global_plot_container)
 
         with tab2:
-            #st.header("Visualisation par élève")
 
             st.session_state.periods = st.session_state.normalized_df["Period"].unique().tolist()
             st.session_state.competences = st.session_state.normalized_df["Competence"].unique().tolist()
@@ -69,6 +67,7 @@ if hasattr(st.session_state, 'normalized_df'):
                             placeholder="Sélectionnez une ou plusieurs compétences"
                         )
                     show_means = st.checkbox("Afficher la moyenne", False)
+                    show_quartiles = st.checkbox("Afficher les quartiles", False)
 
             with st.expander("Cliquer pour voir les options de normalisation"):
                 st.write("Les options de normalisation permettent de filtrer les données affichées.")
@@ -78,20 +77,26 @@ if hasattr(st.session_state, 'normalized_df'):
             student_plot_container = st.empty()
 
             if not hasattr(st.session_state, 'student_plot'):
-                st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df, selected_students)
+                st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df,
+                                                                                 selected_students)
                 st.session_state.student_plot = plotter.Plotter(st.session_state.student_df, show_means)
                 display(st.session_state.student_plot, student_plot_container)
 
-            if selected_students or show_means or selected_periods or selected_competences:
-                st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df, selected_students)
+            if selected_students or show_means or show_quartiles or selected_periods or selected_competences:
+                st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df,
+                                                                                 selected_students)
 
                 if selected_periods:
-                    st.session_state.student_df = normalizer.get_results_by_period(st.session_state.student_df, selected_periods)
+                    st.session_state.student_df = normalizer.get_results_by_period(st.session_state.student_df,
+                                                                                   selected_periods)
 
                 if selected_competences:
-                    st.session_state.student_df = normalizer.get_student_results_by_competence(st.session_state.student_df, selected_competences)
+                    st.session_state.student_df = normalizer.get_student_results_by_competence(
+                        st.session_state.student_df, selected_competences)
 
-                st.session_state.student_plot = plotter.Plotter(st.session_state.student_df, show_means, st.session_state.normalized_df, selected_periods, selected_competences)
+                st.session_state.student_plot = plotter.Plotter(st.session_state.student_df, show_means,
+                                                                st.session_state.normalized_df, selected_periods,
+                                                                selected_competences, show_quartiles)
                 display(st.session_state.student_plot, student_plot_container)
 
             if not show_means and selected_students:
