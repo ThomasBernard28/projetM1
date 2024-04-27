@@ -27,14 +27,14 @@ class Plotter:
                     # In this case the df must be filtered by competences
                     self.class_means_df = norm.get_student_results_by_competence(self.class_means_df, args[4])
 
+                self.create_quartiles_chart()
+                self.create_means_line_chart()
                 if args[5]:
                     # If the quartiles must be shown
-                    self.create_quartiles_chart()
                     self.chart += self.quartiles_chart
 
                 if args[1]:
                     # If the means must be shown
-                    self.create_means_line_chart()
                     self.chart += self.means_line_chart
 
 
@@ -45,7 +45,8 @@ class Plotter:
             self.create_means_line_chart()
             self.create_means_circle_chart()
             self.create_quartiles_chart()
-            self.chart = self.quartiles_chart + self.means_line_chart + self.means_circle_chart
+            self.chart = self.quartiles_chart + self.means_line_chart
+            self.chart += self.means_circle_chart
 
         else:
             raise ValueError("Invalid number of arguments")
@@ -80,14 +81,14 @@ class Plotter:
         self.line_chart = altair.Chart(df, title=title).mark_line().encode(
             altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
             altair.Y('Normalized:Q', axis=altair.Axis(tickCount=20)).title('Résultat obtenu'),
-            color='Name:N'
+            color=altair.Color('Name:N').legend(title='Elèves').scale(altair.Scale(scheme='category20')),
         ).properties(width=600, height=500)
 
         self.circle_chart = altair.Chart(df, title=title).mark_circle().encode(
             altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
             altair.Y('Normalized:Q', axis=altair.Axis(tickCount=20)).title('Résultat obtenu'),
             tooltip=['Test', 'Normalized', 'Period'],
-            color='Name:N'
+            color=altair.Color('Name:N').scale(altair.Scale(scheme='category20'))
         ).properties(width=600, height=500)
 
     def show_means(self, df):
@@ -104,6 +105,9 @@ class Plotter:
         self.means_line_chart = None
 
         self.chart = self.line_chart + self.circle_chart
+
+        if self.quartiles_chart is not None:
+            self.chart += self.quartiles_chart
 
     def to_specs(self):
         return self.chart.to_dict()

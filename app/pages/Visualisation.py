@@ -59,6 +59,7 @@ if hasattr(st.session_state, 'normalized_df'):
                             st.session_state.periods,
                             placeholder="Sélectionnez une ou plusieurs périodes"
                         )
+                        show_means = st.checkbox("Afficher la moyenne", False)
 
                     with col22:
                         selected_competences = st.multiselect(
@@ -66,8 +67,7 @@ if hasattr(st.session_state, 'normalized_df'):
                             st.session_state.competences,
                             placeholder="Sélectionnez une ou plusieurs compétences"
                         )
-                    show_means = st.checkbox("Afficher la moyenne", False)
-                    show_quartiles = st.checkbox("Afficher les quartiles", False)
+                        show_quartiles = st.checkbox("Afficher les quartiles", False)
 
             with st.expander("Cliquer pour voir les options de normalisation"):
                 st.write("Les options de normalisation permettent de filtrer les données affichées.")

@@ -27,6 +27,10 @@ if uploaded_file is not None:
     os.remove(file.name)
 
     normalized_df = normalizer.normalize_results(df)
+
+    jade_normalized_df = normalizer.normalize_by_student_results(normalized_df, "Emilien")
+    st.write(jade_normalized_df)
+
     st.write("Données chargées ✅\n Vous pouvez vous rendre sur la page de visualisation")
 
     # Save the normalized_df to use it in other pages
