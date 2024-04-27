@@ -27,9 +27,16 @@ if uploaded_file is not None:
     os.remove(file.name)
 
     normalized_df = normalizer.normalize_results(df)
+    #st.write(normalized_df)
 
-    jade_normalized_df = normalizer.normalize_by_student_results(normalized_df, "Emilien")
-    st.write(jade_normalized_df)
+    mean = normalizer.get_class_mean_by_test(normalized_df)
+    #st.write(mean)
+
+    #jade_normalized_df = normalizer.normalize_by_student_results(normalized_df, "Emilien")
+    #st.write(jade_normalized_df)
+
+    jade_df = normalizer.normalize_regarding_class(normalized_df, mean, "Jade")
+    st.write(jade_df)
 
     st.write("Données chargées ✅\n Vous pouvez vous rendre sur la page de visualisation")
 

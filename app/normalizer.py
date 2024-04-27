@@ -4,11 +4,11 @@ import numpy as np
 
 def normalize_results(dataframe):
     """
-    This method is used to normalize the results on a 20 base
+    This method is used to normalize the results on a 10 base
     :param dataframe: the dataframe to normalize
     :return: a dataframe with the normalized results
     """
-    dataframe['Normalized'] = round((dataframe['Result'] / dataframe['Total']) * 10, 2)
+    dataframe['On10'] = round((dataframe['Result'] / dataframe['Total']) * 10, 2)
 
     return dataframe
 
@@ -23,7 +23,7 @@ def get_all_student_results(dataframe, students):
     # Get all records for 1 student
     student_results = dataframe[dataframe['Name'].isin(students)]
 
-    final_student_df = student_results[['Name', 'Period', 'Test', 'Competence', 'Normalized']]
+    final_student_df = student_results[['Name', 'Period', 'Test', 'Competence', 'On10']]
 
     return final_student_df
 
@@ -59,7 +59,7 @@ def get_class_mean_by_test(dataframe):
     :return: A dataframe containing the test name and the mean
     """
 
-    class_means = pd.DataFrame(columns=['Test', 'Period', 'Competence', 'Mean','STD', "Q1", "Q3"])
+    class_means = pd.DataFrame(columns=['Test', 'Period', 'Competence', 'Mean', 'STD', "Q1", "Q3"])
 
     for test in dataframe.groupby(['Test', 'Period', 'Competence']).groups.keys():
         test_name, period, competence = test
@@ -67,12 +67,13 @@ def get_class_mean_by_test(dataframe):
         test_df = dataframe[(dataframe['Test'] == test_name) & (dataframe['Period'] == period) & (
                 dataframe['Competence'] == competence)]
 
-        mean_normalized = test_df['Normalized'].mean()
-        std_normalized = test_df['Normalized'].std()
+        mean_normalized = test_df['On10'].mean()
+        std_normalized = test_df['On10'].std()
 
-        quantiles = test_df['Normalized'].quantile([0.25, 0.75])
+        quantiles = test_df['On10'].quantile([0.25, 0.75])
 
-        class_means.loc[len(class_means)] = [test_name, period, competence, mean_normalized, std_normalized, quantiles[0.25],
+        class_means.loc[len(class_means)] = [test_name, period, competence, mean_normalized, std_normalized,
+                                             quantiles[0.25],
                                              quantiles[0.75]]
 
     class_means = class_means.set_index(['Test', 'Competence', 'Period']).reindex(
@@ -82,6 +83,26 @@ def get_class_mean_by_test(dataframe):
     return class_means
 
 
+def normalize_regarding_class(df_students, df_means, student):
+    df_student = df_students[df_students['Name'] == student]
+    df_merged = pd.merge(df_student, df_means, on=['Test', 'Competence', 'Period'])
+
+    df_merged['Standardized'] = (df_merged['On10'] - df_merged['Mean']) / df_merged['STD']
+
+    IQR = df_merged['Q3'] - df_merged['Q1']
+    lower_bound = df_merged['Q1'] - 1.5 * IQR
+    upper_bound = df_merged['Q3'] + 1.5 * IQR
+
+    df_filtered = df_merged[(df_merged['On10'] >= lower_bound) & (df_merged['On10'] <= upper_bound)]
+
+    min_score = df_filtered['Standardized'].min()
+    max_score = df_filtered['Standardized'].max()
+    df_filtered.loc[:, 'Normalized'] = (df_filtered['Standardized'] - min_score) / (max_score - min_score)
+
+    return df_filtered
+
+
+"""
 def normalize_by_student_results(dataframe, student):
     if isinstance(student, list):
         raise TypeError("The student parameter must be a string")
@@ -90,37 +111,30 @@ def normalize_by_student_results(dataframe, student):
     student_results['Normalized Result'] = np.nan
     student_results['Normalized Scaled'] = np.nan
 
-    for index, row in student_results.iterrows():
-        test_index = student_results.index.get_loc(index)
-        previous_test_results = student_results.iloc[:test_index]['Normalized']
+    z_scores = []
+    normalized_scores = []
 
-        mean = previous_test_results.mean(skipna=True)
-        standard_deviation = previous_test_results.std(skipna=True)
+    for i in range(len(student_results)):
+        current_values = student_results['On10'][:i]
+        current_mean = current_values.mean()
+        current_std = current_values.std() if current_values.std() != 0 else 1
 
-        if np.isnan(standard_deviation) or standard_deviation == 0:
-            normalized_result = 0.5
-        else:
-            normalized_result = (row['Normalized'] - mean) / standard_deviation
-
-        student_results.at[index, 'Normalized Result'] = normalized_result
-
-    for index, row in student_results.iterrows():
-        test_index = student_results.index.get_loc(index)
-        previous_normalized_results = student_results.iloc[:test_index]['Normalized Result']
-
-        if previous_normalized_results.empty:
-            normalized_scaled = 0.5
+        if i == 0:
+            current_z_score = 0
+            current_normalized_score = 0.5  # In this case the score matches the mean
 
         else:
-            min_normalized = previous_normalized_results.min()
-            max_normalized = previous_normalized_results.max()
-            if max_normalized == min_normalized:
-                normalized_scaled = 0.5
-            else:
-                normalized_scaled = (row['Normalized Result'] - min_normalized) / (max_normalized - min_normalized)
+            current_z_score = (student_results.iloc[i]['On10'] - current_mean) / current_std
+            all_z_scores = np.array(z_scores + [current_z_score])
+            min_z = all_z_scores.min()
+            max_z = all_z_scores.max()
+            current_normalized_score = (current_z_score - min_z) / (max_z - min_z) if max != min_z else 0.5
 
-            if not np.isnan(normalized_scaled):
-                normalized_scaled = max(0, min(1, normalized_scaled))
-        student_results.at[index, 'Normalized Scaled'] = normalized_scaled
+        z_scores.append(current_z_score)
+        normalized_scores.append(current_normalized_score)
+
+        student_results.at[student_results.index[i], 'Normalized Result'] = current_z_score
+        student_results.at[student_results.index[i], 'Normalized Scaled'] = current_normalized_score
 
     return student_results
+"""

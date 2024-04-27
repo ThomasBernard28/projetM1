@@ -9,6 +9,7 @@ class Plotter:
     means_line_chart = None
     means_circle_chart = None
     quartiles_chart = None
+    normalized_chart = None
 
     def __init__(self, *args):
         # Then not the basic chart
@@ -55,7 +56,7 @@ class Plotter:
         self.means_line_chart = altair.Chart(self.class_means_df).mark_line(strokeDash=[4.1]).encode(
             altair.X('Test:O', sort=self.class_means_df['Test'].tolist()).title(
                 'Nom du test'),
-            altair.Y('Mean:Q', axis=altair.Axis(tickCount=20)).title('Résultat obtenu'),
+            altair.Y('Mean:Q', axis=altair.Axis(tickCount=10)).title('Résultat obtenu'),
             color=altair.value('white')
         ).properties(width=600, height=500)
 
@@ -63,7 +64,7 @@ class Plotter:
         self.quartiles_chart = altair.Chart(self.class_means_df).mark_area(opacity=0.15).encode(
             altair.X('Test:O', sort=self.class_means_df['Test'].tolist()).title(
                 'Nom du test'),
-            altair.Y('Q1:Q', axis=altair.Axis(tickCount=20)),
+            altair.Y('Q1:Q', axis=altair.Axis(tickCount=10)),
             altair.Y2('Q3:Q'),
             color=altair.value('green')
         ).properties(width=600, height=500)
@@ -72,7 +73,7 @@ class Plotter:
         self.means_circle_chart = altair.Chart(self.class_means_df).mark_circle().encode(
             altair.X('Test:O', sort=self.class_means_df['Test'].tolist()).title(
                 'Nom du test'),
-            altair.Y('Mean:Q', axis=altair.Axis(tickCount=20)).title('Résultat obtenu'),
+            altair.Y('Mean:Q', axis=altair.Axis(tickCount=10)).title('Résultat obtenu'),
             tooltip=['Test', 'Mean'],
             color=altair.value('green')
         ).properties(width=600, height=500)
@@ -80,15 +81,26 @@ class Plotter:
     def create_line_and_circle_chart(self, df, title=""):
         self.line_chart = altair.Chart(df, title=title).mark_line().encode(
             altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
-            altair.Y('Normalized:Q', axis=altair.Axis(tickCount=20)).title('Résultat obtenu'),
+            altair.Y('On10:Q', axis=altair.Axis(tickCount=10)).title('Résultat obtenu'),
             color=altair.Color('Name:N').legend(title='Elèves').scale(altair.Scale(scheme='category20')),
         ).properties(width=600, height=500)
 
         self.circle_chart = altair.Chart(df, title=title).mark_circle().encode(
             altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
-            altair.Y('Normalized:Q', axis=altair.Axis(tickCount=20)).title('Résultat obtenu'),
-            tooltip=['Test', 'Normalized', 'Period'],
+            altair.Y('On10:Q', axis=altair.Axis(tickCount=10)).title('Résultat obtenu'),
+            tooltip=['Test', 'On10', 'Period'],
             color=altair.Color('Name:N').scale(altair.Scale(scheme='category20'))
+        ).properties(width=600, height=500)
+
+    def create_normalized_chart_for_student_test(self, df, student):
+        self.normalized_chart = altair.Chart(df).mark_point(
+            altair.X('Test:O'),
+            y='Normalized:Q',
+            color=altair.condition(
+                altair.datum.Name == student,
+                altair.value('red'),
+                altair.value('steelblue')
+            )
         ).properties(width=600, height=500)
 
     def show_means(self, df):
