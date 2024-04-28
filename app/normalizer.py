@@ -83,8 +83,13 @@ def get_class_mean_by_test(dataframe):
     return class_means
 
 
-def normalize_regarding_class(df_students, df_means, student):
-    df_student = df_students[df_students['Name'] == student]
+def normalize_regarding_class(df_students, df_means, students):
+    if not isinstance(students, list):
+        raise TypeError("The students parameter must be a list")
+    if len(students) == 0 or len(students) > 1:
+        raise ValueError("The students parameter must contain exactly one student")
+
+    df_student = get_all_student_results(df_students, students)
     df_merged = pd.merge(df_student, df_means, on=['Test', 'Competence', 'Period'])
 
     df_merged['Standardized'] = (df_merged['On10'] - df_merged['Mean']) / df_merged['STD']
@@ -102,39 +107,24 @@ def normalize_regarding_class(df_students, df_means, student):
     return df_filtered
 
 
-"""
-def normalize_by_student_results(dataframe, student):
-    if isinstance(student, list):
-        raise TypeError("The student parameter must be a string")
-    students = [student]
-    student_results = get_all_student_results(dataframe, students)
-    student_results['Normalized Result'] = np.nan
-    student_results['Normalized Scaled'] = np.nan
+def normalize_regarding_past_results(dataframe, students):
+    if not isinstance(students, list):
+        raise TypeError("The students parameter must be a list")
+    if len(students) == 0 or len(students) > 1:
+        raise ValueError("The students parameter must contain exactly one student")
 
-    z_scores = []
-    normalized_scores = []
+    student_df = get_all_student_results(dataframe, students)
+    student_df['Normalized'] = np.nan
+    student_df['Normalized Scaled'] = np.nan
 
-    for i in range(len(student_results)):
-        current_values = student_results['On10'][:i]
-        current_mean = current_values.mean()
-        current_std = current_values.std() if current_values.std() != 0 else 1
+    std = student_df['On10'].std()
+    mean = student_df['On10'].mean()
 
-        if i == 0:
-            current_z_score = 0
-            current_normalized_score = 0.5  # In this case the score matches the mean
+    student_df['Normalized'] = (student_df['On10'] - mean) / std
 
-        else:
-            current_z_score = (student_results.iloc[i]['On10'] - current_mean) / current_std
-            all_z_scores = np.array(z_scores + [current_z_score])
-            min_z = all_z_scores.min()
-            max_z = all_z_scores.max()
-            current_normalized_score = (current_z_score - min_z) / (max_z - min_z) if max != min_z else 0.5
+    min_score = student_df['Normalized'].min()
+    max_score = student_df['Normalized'].max()
 
-        z_scores.append(current_z_score)
-        normalized_scores.append(current_normalized_score)
+    student_df['Normalized Scaled'] = ((student_df['Normalized'] - min_score) / (max_score - min_score)) * 10
 
-        student_results.at[student_results.index[i], 'Normalized Result'] = current_z_score
-        student_results.at[student_results.index[i], 'Normalized Scaled'] = current_normalized_score
-
-    return student_results
-"""
+    return student_df

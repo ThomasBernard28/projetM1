@@ -23,7 +23,7 @@ if hasattr(st.session_state, 'normalized_df'):
     if page == "Visualisation":
         st.session_state.name_list = st.session_state.normalized_df["Name"].unique()
 
-        tab1, tab2 = st.tabs(["Visualisation Globale", "Visualisation par élève"])
+        tab1, tab2= st.tabs(["Visualisation Globale", "Visualisation par élève"])
 
         with tab1:
             st.header("Visualisation Globale")
@@ -68,11 +68,6 @@ if hasattr(st.session_state, 'normalized_df'):
                             placeholder="Sélectionnez une ou plusieurs compétences"
                         )
                         show_quartiles = st.checkbox("Afficher les quartiles", False)
-
-            with st.expander("Cliquer pour voir les options de normalisation"):
-                st.write("Les options de normalisation permettent de filtrer les données affichées.")
-
-            st.divider()
 
             student_plot_container = st.empty()
 
