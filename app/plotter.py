@@ -10,6 +10,7 @@ class Plotter:
     means_circle_chart = None
     quartiles_chart = None
     normalized_chart = None
+    test_points_normalized_chart = None
 
     def __init__(self, *args):
         # Then not the basic chart
@@ -39,7 +40,7 @@ class Plotter:
 
 
 
-        # The normalized chart
+        # The normalized chart for a student normalization
         elif len(args) == 4:
             self.create_line_and_circle_chart(args[0])
             self.create_normalized_chart_for_student(args[0])
@@ -55,8 +56,17 @@ class Plotter:
             self.create_quartiles_chart()
             self.create_means_line_chart()
 
-            self.chart = altair.layer( self.means_line_chart, self.quartiles_chart, self.chart).resolve_scale(color='independent')
+            self.chart = altair.layer(self.means_line_chart, self.quartiles_chart, self.chart).resolve_scale(color='independent')
 
+        # The chart for normalization regarding class results
+        elif len(args) == 3:
+            self.class_means_df = args[0]
+            self.create_means_line_chart()
+            self.create_quartiles_chart()
+
+            self.create_points_chart_for_tests(args[0], args[1], args[2])
+
+            self.chart = altair.layer(self.means_line_chart, self.quartiles_chart, self.test_points_normalized_chart).resolve_scale(color='independent')
 
 
         # The basic chart
@@ -65,7 +75,7 @@ class Plotter:
             self.create_means_line_chart()
             self.create_means_circle_chart()
             self.create_quartiles_chart()
-            self.chart = altair.layer( self.means_line_chart,self.quartiles_chart, self.means_circle_chart).resolve_scale(color='independent')
+            self.chart = altair.layer(self.means_line_chart,self.quartiles_chart, self.means_circle_chart).resolve_scale(color='independent')
 
         else:
             raise ValueError("Invalid number of arguments")
@@ -130,6 +140,20 @@ class Plotter:
                 altair.value('steelblue')
             )
         ).properties(width=600, height=500)
+
+    def create_points_chart_for_tests(self, df, student_df, other_students_df):
+        student_chart = altair.Chart(student_df).mark_point(
+            altair.X('Test:O'),
+            y='Normalized:Q',
+            color=altair.value('red')
+        ).properties(width=600, height=500)
+        other_students_chart = altair.Chart(other_students_df).mark_point(
+            altair.X('Test:O'),
+            y='Normalized:Q',
+            color=altair.value('steelblue')
+        ).properties(width=600, height=500)
+        self.test_points_normalized_chart = altair.layer(student_chart, other_students_chart)
+
 
     def show_means(self, df):
         self.class_means_df = norm.get_class_mean_by_test(df)

@@ -83,14 +83,10 @@ def get_class_mean_by_test(dataframe):
     return class_means
 
 
-def normalize_regarding_class(df_students, df_means, students):
-    if not isinstance(students, list):
-        raise TypeError("The students parameter must be a list")
-    if len(students) == 0 or len(students) > 1:
-        raise ValueError("The students parameter must contain exactly one student")
+def normalize_regarding_class(df_students, df_means):
+    df_merged = pd.merge(df_students, df_means, on=['Test', 'Competence', 'Period'])
 
-    df_student = get_all_student_results(df_students, students)
-    df_merged = pd.merge(df_student, df_means, on=['Test', 'Competence', 'Period'])
+    print(df_merged)
 
     df_merged['Standardized'] = (df_merged['On10'] - df_merged['Mean']) / df_merged['STD']
 
