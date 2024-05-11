@@ -33,7 +33,7 @@ if uploaded_file is not None:
     #st.write(mean)
 
     jade_normalized_df = normalizer.normalize_regarding_past_results(normalized_df, ["Jade"])
-    st.write(jade_normalized_df)
+    #st.write(jade_normalized_df)
 
     #jade_df = normalizer.normalize_regarding_class(normalized_df, mean, "Jade")
     #st.write(jade_df)

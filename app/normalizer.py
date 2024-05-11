@@ -99,6 +99,7 @@ def normalize_regarding_class(df_students, df_means):
     min_score = df_filtered['Standardized'].min()
     max_score = df_filtered['Standardized'].max()
     df_filtered.loc[:, 'Normalized'] = (df_filtered['Standardized'] - min_score) / (max_score - min_score)
+    df_filtered['Normalized Scaled'] = df_filtered['Normalized'] * 10
 
     return df_filtered
 

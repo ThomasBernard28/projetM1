@@ -107,6 +107,7 @@ if hasattr(st.session_state, 'normalized_df'):
                     st.session_state.tests,
                     placeholder="Sélectionnez le ou les tests à normaliser"
                 )
+                all_tests = st.checkbox(label="Sélectionner tous les tests", value=False)
 
             st.divider()
             class_plot_container = st.empty()
@@ -116,8 +117,12 @@ if hasattr(st.session_state, 'normalized_df'):
 
             display(st.session_state.normalized_class_plot, class_plot_container)
 
-            if selected_student and selected_tests:
-                print(selected_student, selected_tests)
+            if selected_student and (selected_tests or all_tests):
+                if all_tests:
+                    tests = st.session_state.tests
+                else:
+                    tests = selected_tests
+
                 #Get the normalized results for the selected student
                 st.session_state.normalized_class_df = normalizer.normalize_regarding_class(
                     st.session_state.all_student_results,
@@ -125,12 +130,16 @@ if hasattr(st.session_state, 'normalized_df'):
 
                 student_df = st.session_state.normalized_class_df[
                     (st.session_state.normalized_class_df['Name'] == selected_student)
-                    & (st.session_state.normalized_class_df['Test'].isin(selected_tests))]
+                    & (st.session_state.normalized_class_df['Test'].isin(tests))]
 
                 other_students_df = st.session_state.normalized_class_df[
                     (st.session_state.normalized_class_df['Name'] != selected_student)
-                    & (st.session_state.normalized_class_df['Test'].isin(selected_tests))]
+                    & (st.session_state.normalized_class_df['Test'].isin(tests))]
 
                 st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_class_df,
                                                                          student_df, other_students_df)
+                display(st.session_state.normalized_class_plot, class_plot_container)
+
+            else:
+                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_df, True)
                 display(st.session_state.normalized_class_plot, class_plot_container)
