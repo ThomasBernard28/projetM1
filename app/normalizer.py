@@ -86,20 +86,19 @@ def get_class_mean_by_test(dataframe):
 def normalize_regarding_class(df_students, df_means):
     df_merged = pd.merge(df_students, df_means, on=['Test', 'Competence', 'Period'])
 
-    print(df_merged)
-
     df_merged['Standardized'] = (df_merged['On10'] - df_merged['Mean']) / df_merged['STD']
 
     IQR = df_merged['Q3'] - df_merged['Q1']
     lower_bound = df_merged['Q1'] - 1.5 * IQR
     upper_bound = df_merged['Q3'] + 1.5 * IQR
 
-    df_filtered = df_merged[(df_merged['On10'] >= lower_bound) & (df_merged['On10'] <= upper_bound)]
+    df_filtered = df_merged[(df_merged['On10'] >= lower_bound) & (df_merged['On10'] <= upper_bound)].copy()
 
     min_score = df_filtered['Standardized'].min()
     max_score = df_filtered['Standardized'].max()
+
     df_filtered.loc[:, 'Normalized'] = (df_filtered['Standardized'] - min_score) / (max_score - min_score)
-    df_filtered['Normalized Scaled'] = df_filtered['Normalized'] * 10
+    df_filtered.loc[:, 'Normalized Scaled'] = df_filtered['Normalized'] * 10
 
     return df_filtered
 
@@ -125,3 +124,23 @@ def normalize_regarding_past_results(dataframe, students):
     student_df['Normalized Scaled'] = ((student_df['Normalized'] - min_score) / (max_score - min_score)) * 10
 
     return student_df
+
+
+def normalize_regarding_competence(dataframe, student, competence):
+    student_df = get_all_student_results(dataframe, [student])
+    competence_df = get_student_results_by_competence(student_df, [competence])
+
+    competence_df['Normalized'] = np.nan
+    competence_df['Normalized Scaled'] = np.nan
+
+    std = competence_df['On10'].std()
+    mean = competence_df['On10'].mean()
+
+    competence_df['Normalized'] = (competence_df['On10'] - mean) / std
+
+    min_score = competence_df['Normalized'].min()
+    max_score = competence_df['Normalized'].max()
+
+    competence_df['Normalized Scaled'] = ((competence_df['Normalized'] - min_score) / (max_score - min_score)) * 10
+
+    return competence_df

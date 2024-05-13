@@ -29,7 +29,7 @@ if hasattr(st.session_state, 'normalized_df'):
             st.header("Visualisation Globale")
             global_plot_container = st.empty()
             if not hasattr(st.session_state, 'global_plot'):
-                st.session_state.global_plot = plotter.Plotter(st.session_state.normalized_df, True)
+                st.session_state.global_plot = plotter.Plotter(st.session_state.normalized_df)
 
             display(st.session_state.global_plot, global_plot_container)
 
@@ -74,7 +74,7 @@ if hasattr(st.session_state, 'normalized_df'):
             if not hasattr(st.session_state, 'student_plot'):
                 st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df,
                                                                                  selected_students)
-                st.session_state.student_plot = plotter.Plotter(st.session_state.student_df, show_means)
+                st.session_state.student_plot = plotter.Plotter(st.session_state.student_df)
                 display(st.session_state.student_plot, student_plot_container)
 
             if selected_students or show_means or show_quartiles or selected_periods or selected_competences:

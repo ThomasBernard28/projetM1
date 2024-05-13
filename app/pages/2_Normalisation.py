@@ -62,7 +62,7 @@ if hasattr(st.session_state, 'normalized_df'):
             student_plot_container = st.empty()
 
             if not hasattr(st.session_state, 'normalized_student_plot'):
-                st.session_state.normalized_student_plot = plotter.Plotter(st.session_state.normalized_df, True)
+                st.session_state.normalized_student_plot = plotter.Plotter(st.session_state.normalized_df)
 
             display(st.session_state.normalized_student_plot, student_plot_container)
 
@@ -85,11 +85,13 @@ if hasattr(st.session_state, 'normalized_df'):
                 display(st.session_state.normalized_student_plot, student_plot_container)
 
             elif selected_student is None:
-                st.session_state.normalized_student_plot = plotter.Plotter(st.session_state.normalized_df, True)
+                st.session_state.normalized_student_plot = plotter.Plotter(st.session_state.normalized_df)
                 display(st.session_state.normalized_student_plot, student_plot_container)
 
         with tab2:
             st.header("Normalisation par rapport à la classe")
+
+            #TODO Check why the mean is changing.
 
             col1, col2 = st.columns([1, 1])
 
@@ -113,7 +115,7 @@ if hasattr(st.session_state, 'normalized_df'):
             class_plot_container = st.empty()
 
             if not hasattr(st.session_state, 'normalized_class_plot'):
-                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_df, True)
+                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_df)
 
             display(st.session_state.normalized_class_plot, class_plot_container)
 
@@ -141,5 +143,49 @@ if hasattr(st.session_state, 'normalized_df'):
                 display(st.session_state.normalized_class_plot, class_plot_container)
 
             else:
-                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_df, True)
+                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_df)
                 display(st.session_state.normalized_class_plot, class_plot_container)
+
+        with tab3:
+            st.header("Normalisation pour un élève par rapport à une compétence")
+
+            col1, col2 = st.columns([1, 1])
+
+            with col1:
+                selected_student = st.selectbox(
+                    "Élève concerné",
+                    st.session_state.name_list,
+                    index=None,
+                    placeholder="Sélectionnez un élève"
+                )
+
+            with col2:
+                selected_competence = st.selectbox(
+                    "Compétence désirée",
+                    st.session_state.competences,
+                    index=None,
+                    placeholder="Sélectionnez une compétence"
+                )
+
+            st.divider()
+            competence_plot_container = st.empty()
+
+            if not hasattr(st.session_state, 'normalized_competence_plot'):
+                st.session_state.normalized_competence_plot = plotter.Plotter(st.session_state.normalized_df)
+
+            display(st.session_state.normalized_competence_plot, competence_plot_container)
+
+            if selected_student and selected_competence:
+                st.session_state.normalized_competence_df = normalizer.normalize_regarding_competence(st.session_state.normalized_df,
+                                                                                                      selected_student,
+                                                                                                      selected_competence)
+
+                st.session_state.normalized_competence_plot = plotter.Plotter(st.session_state.normalized_competence_df,
+                                                                              selected_competence,
+                                                                              st.session_state.normalized_df)
+
+                display(st.session_state.normalized_competence_plot, competence_plot_container)
+
+            else:
+                st.session_state.normalized_competence_plot = plotter.Plotter(st.session_state.normalized_df)
+                display(st.session_state.normalized_competence_plot, competence_plot_container)
