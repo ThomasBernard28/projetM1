@@ -129,22 +129,29 @@ class Plotter:
             altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
             altair.Y('On10:Q', axis=altair.Axis(tickCount=10)).title('Résultat obtenu'),
             color=altair.Color('Name:N').legend(title='').scale(altair.Scale(scheme='category20')),
-        ).properties(width=600, height=500)
+        )
 
         self.circle_chart = altair.Chart(df, title=title).mark_circle().encode(
             altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
             altair.Y('On10:Q', axis=altair.Axis(tickCount=10)).title('Résultat obtenu'),
             tooltip=['Test', 'On10', 'Period'],
             color=altair.Color('Name:N').legend(None).scale(altair.Scale(scheme='category20'))
-        ).properties(width=600, height=500)
+        )
 
     def create_normalized_chart_for_student(self, df):
         df['Label'] = 'Normalisé'
-        self.normalized_chart = altair.Chart(df).mark_line().encode(
+        line_normalized_chart = altair.Chart(df).mark_line().encode(
             altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
             altair.Y('Normalized Scaled:Q', axis=altair.Axis(tickCount=10)),
             color=altair.Color('Label:N').legend(title='').scale(altair.Scale(range=['red']))
-        ).properties(width=600, height=500)
+        )
+        circle_normalized_chart = altair.Chart(df).mark_circle().encode(
+            altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
+            altair.Y('Normalized Scaled:Q', axis=altair.Axis(tickCount=10)),
+            tooltip=['Test', 'Normalized'],
+            color=altair.Color('Label:N').legend(title='').scale(altair.Scale(range=['red']))
+        )
+        self.normalized_chart = altair.layer(line_normalized_chart, circle_normalized_chart).interactive()
 
     def create_points_chart_for_tests(self, df, student_df, other_students_df):
         student_chart = altair.Chart(student_df).mark_circle().encode(
@@ -156,7 +163,7 @@ class Plotter:
             altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
             altair.Y('Normalized Scaled:Q', axis=altair.Axis(tickCount=10)),
             color=altair.value('white')
-        ).properties(width=600, height=500)
+        )
         self.test_points_normalized_chart = altair.layer(other_students_chart, student_chart).interactive()
 
     def show_means(self, df):

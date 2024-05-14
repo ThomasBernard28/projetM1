@@ -84,10 +84,22 @@ def get_class_mean_by_test(dataframe):
 
 
 def normalize_regarding_class(df_students, df_means):
+    """
+    This method is used to normalize the results of a student in regard with the previous results of the class.
+    It uses for now a basic normalization using interquartile range, standard deviation and mean. To scale the normalized
+    results on a 10 base, the min and max of the normalized results are used.
+    :param df_students: The dataframe containing the students results
+    :param df_means: The dataframe containing the class means, quartiles, mean and standard deviation for each test
+    :return: A dataframe containing the normalized results
+    """
+
+    # Merge the two dataframes for future operations
     df_merged = pd.merge(df_students, df_means, on=['Test', 'Competence', 'Period'])
 
+    # Standardize the results
     df_merged['Standardized'] = (df_merged['On10'] - df_merged['Mean']) / df_merged['STD']
 
+    # Eliminate the outliers
     IQR = df_merged['Q3'] - df_merged['Q1']
     lower_bound = df_merged['Q1'] - 1.5 * IQR
     upper_bound = df_merged['Q3'] + 1.5 * IQR
@@ -97,6 +109,7 @@ def normalize_regarding_class(df_students, df_means):
     min_score = df_filtered['Standardized'].min()
     max_score = df_filtered['Standardized'].max()
 
+    # Normalize the results and scale them
     df_filtered.loc[:, 'Normalized'] = (df_filtered['Standardized'] - min_score) / (max_score - min_score)
     df_filtered.loc[:, 'Normalized Scaled'] = df_filtered['Normalized'] * 10
 
@@ -104,31 +117,45 @@ def normalize_regarding_class(df_students, df_means):
 
 
 def normalize_regarding_past_results(dataframe, students):
+    """
+    This method is used to normalize the results of a student in regard of his previous results.
+    :param dataframe: The dataframe with all students results
+    :param students: A list containing the student name that has to be normalized
+    :return: A dataframe with the normalized results
+    """
     if not isinstance(students, list):
         raise TypeError("The students parameter must be a list")
     if len(students) == 0 or len(students) > 1:
         raise ValueError("The students parameter must contain exactly one student")
 
-    student_df = get_all_student_results(dataframe, students)
+    student_df = get_all_student_results(dataframe, students).copy()
     student_df['Normalized'] = np.nan
     student_df['Normalized Scaled'] = np.nan
 
     std = student_df['On10'].std()
     mean = student_df['On10'].mean()
 
-    student_df['Normalized'] = (student_df['On10'] - mean) / std
+    student_df.loc[:, 'Normalized'] = (student_df['On10'] - mean) / std
 
     min_score = student_df['Normalized'].min()
     max_score = student_df['Normalized'].max()
 
-    student_df['Normalized Scaled'] = ((student_df['Normalized'] - min_score) / (max_score - min_score)) * 10
+    student_df.loc[:, 'Normalized Scaled'] = ((student_df['Normalized'] - min_score) / (max_score - min_score)) * 10
 
     return student_df
 
 
 def normalize_regarding_competence(dataframe, student, competence):
-    student_df = get_all_student_results(dataframe, [student])
-    competence_df = get_student_results_by_competence(student_df, [competence])
+    """
+    This method is used to normalize the results of a student in a particular compretence in regard of his previous
+    results in this particular competence.
+    :param dataframe: The dataframe with all students results
+    :param student: The student name that has to be normalized
+    :param competence: The competence that has to be normalized
+    :return: A dataframe containing the normalized results
+    """
+    student_df = get_all_student_results(dataframe, [student]).copy()
+    competence_df = get_student_results_by_competence(student_df, [competence]).copy()
 
     competence_df['Normalized'] = np.nan
     competence_df['Normalized Scaled'] = np.nan
@@ -136,11 +163,11 @@ def normalize_regarding_competence(dataframe, student, competence):
     std = competence_df['On10'].std()
     mean = competence_df['On10'].mean()
 
-    competence_df['Normalized'] = (competence_df['On10'] - mean) / std
+    competence_df.loc[:, 'Normalized'] = (competence_df['On10'] - mean) / std
 
     min_score = competence_df['Normalized'].min()
     max_score = competence_df['Normalized'].max()
 
-    competence_df['Normalized Scaled'] = ((competence_df['Normalized'] - min_score) / (max_score - min_score)) * 10
+    competence_df.loc[:, 'Normalized Scaled'] = ((competence_df['Normalized'] - min_score) / (max_score - min_score)) * 10
 
     return competence_df
