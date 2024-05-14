@@ -58,8 +58,8 @@ class Plotter:
 
             self.chart = altair.layer(self.means_line_chart, self.quartiles_chart, self.chart).resolve_scale(
                 color='independent')
-            # The chart for normalization regarding class results
 
+        # The chart for normalization regarding a competence for a student
         elif len(args) == 3 and isinstance(args[1], str):
             self.class_means_df = norm.get_class_mean_by_test(args[2])
             self.class_means_df = norm.get_student_results_by_competence(self.class_means_df, [args[1]])
@@ -69,7 +69,7 @@ class Plotter:
             self.create_line_and_circle_chart(args[0])
             self.create_normalized_chart_for_student(args[0])
 
-            self.chart = altair.layer(self.means_line_chart,self.quartiles_chart, self.means_circle_chart,self.line_chart,
+            self.chart = altair.layer(self.means_line_chart,self.quartiles_chart, self.means_circle_chart, self.line_chart,
                                       self.circle_chart, self.normalized_chart).resolve_scale(color='independent')
 
         # The chart for normalization regarding class results
@@ -148,7 +148,7 @@ class Plotter:
         circle_normalized_chart = altair.Chart(df).mark_circle().encode(
             altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
             altair.Y('Normalized Scaled:Q', axis=altair.Axis(tickCount=10)),
-            tooltip=['Test', 'Normalized'],
+            tooltip=['Test', 'Normalized Scaled'],
             color=altair.Color('Label:N').legend(title='').scale(altair.Scale(range=['red']))
         )
         self.normalized_chart = altair.layer(line_normalized_chart, circle_normalized_chart).interactive()
@@ -157,6 +157,7 @@ class Plotter:
         student_chart = altair.Chart(student_df).mark_circle().encode(
             altair.X('Test:O', sort=df['Test'].tolist()).title('Nom du test'),
             altair.Y('Normalized Scaled:Q', axis=altair.Axis(tickCount=10)),
+            tooltip=['Name', 'Test','On10', 'Normalized Scaled'],
             color=altair.value('red')
         ).properties(width=600, height=500)
         other_students_chart = altair.Chart(other_students_df).mark_circle().encode(

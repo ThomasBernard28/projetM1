@@ -99,21 +99,14 @@ def normalize_regarding_class(df_students, df_means):
     # Standardize the results
     df_merged['Standardized'] = (df_merged['On10'] - df_merged['Mean']) / df_merged['STD']
 
-    # Eliminate the outliers
-    IQR = df_merged['Q3'] - df_merged['Q1']
-    lower_bound = df_merged['Q1'] - 1.5 * IQR
-    upper_bound = df_merged['Q3'] + 1.5 * IQR
-
-    df_filtered = df_merged[(df_merged['On10'] >= lower_bound) & (df_merged['On10'] <= upper_bound)].copy()
-
-    min_score = df_filtered['Standardized'].min()
-    max_score = df_filtered['Standardized'].max()
+    min_score = df_merged['Standardized'].min()
+    max_score = df_merged['Standardized'].max()
 
     # Normalize the results and scale them
-    df_filtered.loc[:, 'Normalized'] = (df_filtered['Standardized'] - min_score) / (max_score - min_score)
-    df_filtered.loc[:, 'Normalized Scaled'] = df_filtered['Normalized'] * 10
+    df_merged.loc[:, 'Normalized'] = (df_merged['Standardized'] - min_score) / (max_score - min_score)
+    df_merged.loc[:, 'Normalized Scaled'] = df_merged['Normalized'] * 10
 
-    return df_filtered
+    return df_merged
 
 
 def normalize_regarding_past_results(dataframe, students):
@@ -132,9 +125,21 @@ def normalize_regarding_past_results(dataframe, students):
     student_df['Normalized'] = np.nan
     student_df['Normalized Scaled'] = np.nan
 
-    std = student_df['On10'].std()
-    mean = student_df['On10'].mean()
+    # Compute the quartiles and the interquartile range
+    q1 = student_df['On10'].quantile(0.25)
+    q3 = student_df['On10'].quantile(0.75)
+    iqr = q3 - q1
+    lower_bound = q1 - 1.5 * iqr
+    upper_bound = q3 + 1.5 * iqr
 
+    # Remove the outliers from the dataframe
+    student_filtered = student_df[(student_df['On10'] >= lower_bound) & (student_df['On10'] <= upper_bound)].copy()
+
+    # Compute std and mean on filtered data
+    std = student_filtered['On10'].std()
+    mean = student_filtered['On10'].mean()
+
+    # Apply the normalization formula on non-filtered data
     student_df.loc[:, 'Normalized'] = (student_df['On10'] - mean) / std
 
     min_score = student_df['Normalized'].min()
@@ -160,8 +165,16 @@ def normalize_regarding_competence(dataframe, student, competence):
     competence_df['Normalized'] = np.nan
     competence_df['Normalized Scaled'] = np.nan
 
-    std = competence_df['On10'].std()
-    mean = competence_df['On10'].mean()
+    q1 = competence_df['On10'].quantile(0.25)
+    q3 = competence_df['On10'].quantile(0.75)
+    iqr = q3 - q1
+    lower_bound = q1 - 1.5 * iqr
+    upper_bound = q3 + 1.5 * iqr
+
+    competence_filtered = competence_df[(competence_df['On10'] >= lower_bound) & (competence_df['On10'] <= upper_bound)].copy()
+
+    std = competence_filtered['On10'].std()
+    mean = competence_filtered['On10'].mean()
 
     competence_df.loc[:, 'Normalized'] = (competence_df['On10'] - mean) / std
 
