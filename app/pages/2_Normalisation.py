@@ -34,7 +34,66 @@ if hasattr(st.session_state, 'normalized_df'):
                                     "Normalisation par rapport à une compétence"])
 
         with tab1:
+            st.header("Normalisation par rapport à la classe")
+
+            class_plot_container = st.empty()
+            st.divider()
+
+            col1, col2 = st.columns([1, 1])
+
+            with col1:
+                selected_student = st.selectbox(
+                    "Elève concerné",
+                    st.session_state.name_list,
+                    index=None,
+                    placeholder="Sélectionnez un élève"
+                )
+
+            with col2:
+                selected_tests = st.multiselect(
+                    "Tests à normaliser",
+                    st.session_state.tests,
+                    placeholder="Sélectionnez le ou les tests à normaliser"
+                )
+                all_tests = st.checkbox(label="Sélectionner tous les tests", value=False)
+
+            if not hasattr(st.session_state, 'normalized_class_plot'):
+                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_df)
+
+            display(st.session_state.normalized_class_plot, class_plot_container)
+
+            if selected_student and (selected_tests or all_tests):
+                if all_tests:
+                    tests = st.session_state.tests
+                else:
+                    tests = selected_tests
+
+                # Get the normalized results for the selected student
+                st.session_state.normalized_class_df = normalizer.normalize_regarding_class(
+                    st.session_state.all_student_results,
+                    st.session_state.class_means_df)
+
+                student_df = st.session_state.normalized_class_df[
+                    (st.session_state.normalized_class_df['Name'] == selected_student)
+                    & (st.session_state.normalized_class_df['Test'].isin(tests))]
+
+                other_students_df = st.session_state.normalized_class_df[
+                    (st.session_state.normalized_class_df['Name'] != selected_student)
+                    & (st.session_state.normalized_class_df['Test'].isin(tests))]
+
+                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_class_df,
+                                                                         student_df, other_students_df)
+                display(st.session_state.normalized_class_plot, class_plot_container)
+
+            else:
+                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_df)
+                display(st.session_state.normalized_class_plot, class_plot_container)
+
+        with tab2:
             st.header("Normalisation par rapport à l'élève")
+
+            student_plot_container = st.empty()
+            st.divider()
 
             col1, col2, col3 = st.columns([1, 1, 1])
             with col1:
@@ -57,9 +116,6 @@ if hasattr(st.session_state, 'normalized_df'):
                     st.session_state.competences,
                     placeholder="Sélectionnez une ou plusieurs compétences"
                 )
-
-            st.divider()
-            student_plot_container = st.empty()
 
             if not hasattr(st.session_state, 'normalized_student_plot'):
                 st.session_state.normalized_student_plot = plotter.Plotter(st.session_state.normalized_df)
@@ -88,66 +144,13 @@ if hasattr(st.session_state, 'normalized_df'):
                 st.session_state.normalized_student_plot = plotter.Plotter(st.session_state.normalized_df)
                 display(st.session_state.normalized_student_plot, student_plot_container)
 
-        with tab2:
-            st.header("Normalisation par rapport à la classe")
 
-            #TODO Check why the mean is changing.
-
-            col1, col2 = st.columns([1, 1])
-
-            with col1:
-                selected_student = st.selectbox(
-                    "Elève concerné",
-                    st.session_state.name_list,
-                    index=None,
-                    placeholder="Sélectionnez un élève"
-                )
-
-            with col2:
-                selected_tests = st.multiselect(
-                    "Tests à normaliser",
-                    st.session_state.tests,
-                    placeholder="Sélectionnez le ou les tests à normaliser"
-                )
-                all_tests = st.checkbox(label="Sélectionner tous les tests", value=False)
-
-            st.divider()
-            class_plot_container = st.empty()
-
-            if not hasattr(st.session_state, 'normalized_class_plot'):
-                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_df)
-
-            display(st.session_state.normalized_class_plot, class_plot_container)
-
-            if selected_student and (selected_tests or all_tests):
-                if all_tests:
-                    tests = st.session_state.tests
-                else:
-                    tests = selected_tests
-
-                #Get the normalized results for the selected student
-                st.session_state.normalized_class_df = normalizer.normalize_regarding_class(
-                    st.session_state.all_student_results,
-                    st.session_state.class_means_df)
-
-                student_df = st.session_state.normalized_class_df[
-                    (st.session_state.normalized_class_df['Name'] == selected_student)
-                    & (st.session_state.normalized_class_df['Test'].isin(tests))]
-
-                other_students_df = st.session_state.normalized_class_df[
-                    (st.session_state.normalized_class_df['Name'] != selected_student)
-                    & (st.session_state.normalized_class_df['Test'].isin(tests))]
-
-                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_class_df,
-                                                                         student_df, other_students_df)
-                display(st.session_state.normalized_class_plot, class_plot_container)
-
-            else:
-                st.session_state.normalized_class_plot = plotter.Plotter(st.session_state.normalized_df)
-                display(st.session_state.normalized_class_plot, class_plot_container)
 
         with tab3:
             st.header("Normalisation pour un élève par rapport à une compétence")
+
+            competence_plot_container = st.empty()
+            st.divider()
 
             col1, col2 = st.columns([1, 1])
 
@@ -167,18 +170,16 @@ if hasattr(st.session_state, 'normalized_df'):
                     placeholder="Sélectionnez une compétence"
                 )
 
-            st.divider()
-            competence_plot_container = st.empty()
-
             if not hasattr(st.session_state, 'normalized_competence_plot'):
                 st.session_state.normalized_competence_plot = plotter.Plotter(st.session_state.normalized_df)
 
             display(st.session_state.normalized_competence_plot, competence_plot_container)
 
             if selected_student and selected_competence:
-                st.session_state.normalized_competence_df = normalizer.normalize_regarding_competence(st.session_state.normalized_df,
-                                                                                                      selected_student,
-                                                                                                      selected_competence)
+                st.session_state.normalized_competence_df = normalizer.normalize_regarding_competence(
+                    st.session_state.normalized_df,
+                    selected_student,
+                    selected_competence)
 
                 st.session_state.normalized_competence_plot = plotter.Plotter(st.session_state.normalized_competence_df,
                                                                               selected_competence,

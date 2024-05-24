@@ -23,7 +23,7 @@ if hasattr(st.session_state, 'normalized_df'):
     if page == "Visualisation":
         st.session_state.name_list = st.session_state.normalized_df["Name"].unique()
 
-        tab1, tab2= st.tabs(["Visualisation Globale", "Visualisation par élève"])
+        tab1, tab2 = st.tabs(["Visualisation Globale", "Visualisation par élève"])
 
         with tab1:
             st.header("Visualisation Globale")
@@ -37,6 +37,8 @@ if hasattr(st.session_state, 'normalized_df'):
 
             st.session_state.periods = st.session_state.normalized_df["Period"].unique().tolist()
             st.session_state.competences = st.session_state.normalized_df["Competence"].unique().tolist()
+
+            student_plot_container = st.empty()
 
             col1, col2 = st.columns([1, 2])
             with col1:
@@ -69,11 +71,8 @@ if hasattr(st.session_state, 'normalized_df'):
                         )
                         show_quartiles = st.checkbox("Afficher les quartiles", False)
 
-            student_plot_container = st.empty()
-
             if not hasattr(st.session_state, 'student_plot'):
-                st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df,
-                                                                                 selected_students)
+                st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df, selected_students)
                 st.session_state.student_plot = plotter.Plotter(st.session_state.student_df)
                 display(st.session_state.student_plot, student_plot_container)
 

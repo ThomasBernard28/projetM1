@@ -41,7 +41,7 @@ def convert_workbook_to_dataframe(workbook):
                 break_index_col += 2
 
             else:
-                break_index_col += find_total_or_blank_index(sheet)
+                break_index_col += find_max_col_index(sheet)
 
             for row in range(4, break_index_row):
                 student_name = students[row - 4]
@@ -107,10 +107,10 @@ def find_blank_index(name_sheet):
     return i, students
 
 
-def find_total_or_blank_index(sheet):
+def find_max_col_index(sheet):
     i = 3
     while i < sheet.max_column:
-        if sheet.cell(1, i).value == "Total SSFL" or sheet.cell(1, i).value is None:
+        if sheet.cell(3, i).value is None:
             break
         else:
             i += 1

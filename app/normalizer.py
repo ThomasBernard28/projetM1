@@ -23,7 +23,7 @@ def get_all_student_results(dataframe, students):
     # Get all records for 1 student
     student_results = dataframe[dataframe['Name'].isin(students)]
 
-    final_student_df = student_results[['Name', 'Period', 'Test', 'Competence', 'On10']]
+    final_student_df = student_results[['Name', 'Period', 'Test', 'Competence', 'On10', 'Result', 'Total']]
 
     return final_student_df
 
