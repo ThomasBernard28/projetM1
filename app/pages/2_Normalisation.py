@@ -37,7 +37,6 @@ if hasattr(st.session_state, 'normalized_df'):
             st.header("Normalisation par rapport à la classe")
 
             class_plot_container = st.empty()
-            st.divider()
 
             col1, col2 = st.columns([1, 1])
 
@@ -93,7 +92,6 @@ if hasattr(st.session_state, 'normalized_df'):
             st.header("Normalisation par rapport à l'élève")
 
             student_plot_container = st.empty()
-            st.divider()
 
             col1, col2, col3 = st.columns([1, 1, 1])
             with col1:
@@ -144,13 +142,10 @@ if hasattr(st.session_state, 'normalized_df'):
                 st.session_state.normalized_student_plot = plotter.Plotter(st.session_state.normalized_df)
                 display(st.session_state.normalized_student_plot, student_plot_container)
 
-
-
         with tab3:
             st.header("Normalisation pour un élève par rapport à une compétence")
 
             competence_plot_container = st.empty()
-            st.divider()
 
             col1, col2 = st.columns([1, 1])
 
