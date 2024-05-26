@@ -8,8 +8,7 @@ import streamlit as st
 
 def initialize_page():
     st.title("Normalisation des résultats")
-    st.sidebar.title("Navigation")
-    return st.sidebar.radio("Go to", ["Normalisation"])
+    return "Normalisation"
 
 
 def display(_plot, container):
@@ -29,8 +28,8 @@ if hasattr(st.session_state, 'normalized_df'):
         st.session_state.all_student_results = normalizer.get_all_student_results(st.session_state.normalized_df,
                                                                                   st.session_state.name_list)
 
-        tab1, tab2, tab3 = st.tabs(["Normalisation par rapport à l'élève",
-                                    "Normalisation par rapport à la classe",
+        tab1, tab2, tab3 = st.tabs(["Normalisation par rapport à la classe",
+                                    "Normalisation par rapport à l'élève",
                                     "Normalisation par rapport à une compétence"])
 
         with tab1:

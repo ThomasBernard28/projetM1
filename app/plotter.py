@@ -17,7 +17,7 @@ class Plotter:
         # Then not the basic chart
         if len(args) == 6:
             self.create_line_and_circle_chart(args[0])
-            self.chart = altair.layer(self.line_chart + self.circle_chart).resolve_scale(color='independent')
+            self.chart = altair.layer(self.line_chart, self.circle_chart).resolve_scale(color='independent')
             if args[1] or args[5]:
                 # If the means or the quartiles must be shown
                 self.class_means_df = norm.get_class_mean_by_test(args[2])

@@ -8,8 +8,7 @@ import streamlit as st
 
 def initialize_page():
     st.title("Visualisation des résultats")
-    st.sidebar.title("Navigation")
-    return st.sidebar.radio("Go to", ["Visualisation"])
+    return "Visualisation"
 
 
 def display(_plot, container):
