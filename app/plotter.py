@@ -14,88 +14,89 @@ class Plotter:
     competence_normalized_chart = None
 
     def __init__(self, *args):
-        # Then not the basic chart
-        if len(args) == 6:
-            self.create_line_and_circle_chart(args[0])
-            self.chart = altair.layer(self.line_chart, self.circle_chart).resolve_scale(color='independent')
-            if args[1] or args[5]:
-                # If the means or the quartiles must be shown
-                self.class_means_df = norm.get_class_mean_by_test(args[2])
+        match len(args):
+            # Basic chart containing the mean and the quartiles
+            case 1:
+                self.class_means_df = norm.get_class_mean_by_test(args[0])
+                self.create_means_line_chart()
+                self.create_means_circle_chart()
+                self.create_quartiles_chart()
+                self.chart = altair.layer(self.means_line_chart, self.quartiles_chart,
+                                          self.means_circle_chart).resolve_scale(color='independent')
+            case 3:
+                # Chart representing the normalisation of a student regarding a competence
+                if isinstance(args[1], str):
+                    self.class_means_df = norm.get_class_mean_by_test(args[2])
+                    self.class_means_df = norm.get_student_results_by_competence(self.class_means_df, [args[1]])
+                    self.create_means_line_chart()
+                    self.create_means_circle_chart()
+                    self.create_quartiles_chart()
+                    self.create_line_and_circle_chart(args[0])
+                    self.create_normalized_chart_for_student(args[0])
+
+                    self.chart = altair.layer(self.means_line_chart, self.quartiles_chart, self.means_circle_chart,
+                                              self.line_chart,
+                                              self.circle_chart, self.normalized_chart).resolve_scale(
+                        color='independent')
+                # Chart representing the normalisation of a student regarding the class results
+                else:
+                    self.class_means_df = args[0]
+                    self.create_means_line_chart()
+                    self.create_means_circle_chart()
+                    self.create_quartiles_chart()
+
+                    self.create_points_chart_for_tests(args[0], args[1], args[2])
+
+                    self.chart = altair.layer(self.means_line_chart, self.quartiles_chart, self.means_circle_chart,
+                                              self.test_points_normalized_chart).resolve_scale(color='independent')
+
+            # Chart representing the normalisation of a student regarding his previous results
+            case 4:
+                self.create_line_and_circle_chart(args[0])
+                self.create_normalized_chart_for_student(args[0])
+                self.chart = altair.layer(self.line_chart, self.circle_chart, self.normalized_chart).resolve_scale(
+                    color='independent')
+                self.class_means_df = norm.get_class_mean_by_test(args[1])
+
+                if len(args[2]) > 0:
+                    self.class_means_df = norm.get_results_by_period(self.class_means_df, args[2])
 
                 if len(args[3]) > 0:
-                    # In this case the df must be filtered by periods
-                    self.class_means_df = norm.get_results_by_period(self.class_means_df, args[3])
-
-                if len(args[4]) > 0:
-                    # In this case the df must be filtered by competences
-                    self.class_means_df = norm.get_student_results_by_competence(self.class_means_df, args[4])
+                    self.class_means_df = norm.get_student_results_by_competence(self.class_means_df, args[3])
 
                 self.create_quartiles_chart()
                 self.create_means_line_chart()
-                if args[1]:
-                    # If the means must be shown
-                    self.chart = altair.layer(self.means_line_chart, self.chart).resolve_scale(color='independent')
-                if args[5]:
-                    # If the quartiles must be shown
-                    self.chart = altair.layer(self.quartiles_chart, self.chart).resolve_scale(color='independent')
 
-        # The normalized chart for a student normalization
-        elif len(args) == 4:
-            self.create_line_and_circle_chart(args[0])
-            self.create_normalized_chart_for_student(args[0])
-            self.chart = altair.layer(self.line_chart, self.circle_chart, self.normalized_chart).resolve_scale(
-                color='independent')
-            self.class_means_df = norm.get_class_mean_by_test(args[1])
+                self.chart = altair.layer(self.means_line_chart, self.quartiles_chart, self.chart).resolve_scale(
+                    color='independent')
 
-            if len(args[2]) > 0:
-                self.class_means_df = norm.get_results_by_period(self.class_means_df, args[2])
+            # Chart for the basic visualisation, multiple students, filters on the competences and periods etc.
+            case 6:
+                self.create_line_and_circle_chart(args[0])
+                self.chart = altair.layer(self.line_chart, self.circle_chart).resolve_scale(color='independent')
+                if args[1] or args[5]:
+                    # If the means or the quartiles must be shown
+                    self.class_means_df = norm.get_class_mean_by_test(args[2])
 
-            if len(args[3]) > 0:
-                self.class_means_df = norm.get_student_results_by_competence(self.class_means_df, args[3])
+                    if len(args[3]) > 0:
+                        # In this case the df must be filtered by periods
+                        self.class_means_df = norm.get_results_by_period(self.class_means_df, args[3])
 
-            self.create_quartiles_chart()
-            self.create_means_line_chart()
+                    if len(args[4]) > 0:
+                        # In this case the df must be filtered by competences
+                        self.class_means_df = norm.get_student_results_by_competence(self.class_means_df, args[4])
 
-            self.chart = altair.layer(self.means_line_chart, self.quartiles_chart, self.chart).resolve_scale(
-                color='independent')
+                    self.create_quartiles_chart()
+                    self.create_means_line_chart()
+                    if args[1]:
+                        # If the means must be shown
+                        self.chart = altair.layer(self.means_line_chart, self.chart).resolve_scale(color='independent')
+                    if args[5]:
+                        # If the quartiles must be shown
+                        self.chart = altair.layer(self.quartiles_chart, self.chart).resolve_scale(color='independent')
 
-        # The chart for normalization regarding a competence for a student
-        elif len(args) == 3 and isinstance(args[1], str):
-            self.class_means_df = norm.get_class_mean_by_test(args[2])
-            self.class_means_df = norm.get_student_results_by_competence(self.class_means_df, [args[1]])
-            self.create_means_line_chart()
-            self.create_means_circle_chart()
-            self.create_quartiles_chart()
-            self.create_line_and_circle_chart(args[0])
-            self.create_normalized_chart_for_student(args[0])
-
-            self.chart = altair.layer(self.means_line_chart, self.quartiles_chart, self.means_circle_chart,
-                                      self.line_chart,
-                                      self.circle_chart, self.normalized_chart).resolve_scale(color='independent')
-
-        # The chart for normalization regarding class results
-        elif len(args) == 3:
-            self.class_means_df = args[0]
-            self.create_means_line_chart()
-            self.create_means_circle_chart()
-            self.create_quartiles_chart()
-
-            self.create_points_chart_for_tests(args[0], args[1], args[2])
-
-            self.chart = altair.layer(self.means_line_chart, self.quartiles_chart, self.means_circle_chart,
-                                      self.test_points_normalized_chart).resolve_scale(color='independent')
-
-        # The basic chart
-        elif len(args) == 1:
-            self.class_means_df = norm.get_class_mean_by_test(args[0])
-            self.create_means_line_chart()
-            self.create_means_circle_chart()
-            self.create_quartiles_chart()
-            self.chart = altair.layer(self.means_line_chart, self.quartiles_chart,
-                                      self.means_circle_chart).resolve_scale(color='independent')
-
-        else:
-            raise ValueError("Invalid number of arguments")
+            case _:
+                raise ValueError("Invalid number of arguments")
 
     def create_means_line_chart(self):
         self.class_means_df['Label'] = 'Moyenne de la classe'
