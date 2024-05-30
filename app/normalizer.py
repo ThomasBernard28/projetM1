@@ -109,7 +109,7 @@ def normalize_regarding_class(df_students, df_means):
     return df_merged
 
 
-def normalize_regarding_past_results(dataframe, students):
+def normalize_regarding_past_results(dataframe, students, outliers):
     """
     This method is used to normalize the results of a student in regard of his previous results.
     :param dataframe: The dataframe with all students results
@@ -125,15 +125,19 @@ def normalize_regarding_past_results(dataframe, students):
     student_df['Normalized'] = np.nan
     student_df['Normalized Scaled'] = np.nan
 
-    # Compute the quartiles and the interquartile range
-    q1 = student_df['On10'].quantile(0.25)
-    q3 = student_df['On10'].quantile(0.75)
-    iqr = q3 - q1
-    lower_bound = q1 - 1.5 * iqr
-    upper_bound = q3 + 1.5 * iqr
+    if outliers:
+        # Compute the quartiles and the interquartile range
+        q1 = student_df['On10'].quantile(0.25)
+        q3 = student_df['On10'].quantile(0.75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
 
-    # Remove the outliers from the dataframe
-    student_filtered = student_df[(student_df['On10'] >= lower_bound) & (student_df['On10'] <= upper_bound)].copy()
+        # Remove the outliers from the dataframe
+        student_filtered = student_df[(student_df['On10'] >= lower_bound) & (student_df['On10'] <= upper_bound)].copy()
+
+    else:
+        student_filtered = student_df.copy()
 
     # Compute std and mean on filtered data
     std = student_filtered['On10'].std()
@@ -150,7 +154,7 @@ def normalize_regarding_past_results(dataframe, students):
     return student_df
 
 
-def normalize_regarding_competence(dataframe, student, competence):
+def normalize_regarding_competence(dataframe, student, competence, outliers):
     """
     This method is used to normalize the results of a student in a particular compretence in regard of his previous
     results in this particular competence.
@@ -165,13 +169,17 @@ def normalize_regarding_competence(dataframe, student, competence):
     competence_df['Normalized'] = np.nan
     competence_df['Normalized Scaled'] = np.nan
 
-    q1 = competence_df['On10'].quantile(0.25)
-    q3 = competence_df['On10'].quantile(0.75)
-    iqr = q3 - q1
-    lower_bound = q1 - 1.5 * iqr
-    upper_bound = q3 + 1.5 * iqr
+    if outliers:
+        q1 = competence_df['On10'].quantile(0.25)
+        q3 = competence_df['On10'].quantile(0.75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
 
-    competence_filtered = competence_df[(competence_df['On10'] >= lower_bound) & (competence_df['On10'] <= upper_bound)].copy()
+        competence_filtered = competence_df[(competence_df['On10'] >= lower_bound) & (competence_df['On10'] <= upper_bound)].copy()
+
+    else:
+        competence_filtered = competence_df.copy()
 
     std = competence_filtered['On10'].std()
     mean = competence_filtered['On10'].mean()

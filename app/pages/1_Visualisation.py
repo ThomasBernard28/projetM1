@@ -27,6 +27,7 @@ if hasattr(st.session_state, 'normalized_df'):
         with tab1:
             st.header("Visualisation Globale")
             global_plot_container = st.empty()
+            points = st.checkbox(label="Afficher la répartition des points", value=False)
             if not hasattr(st.session_state, 'global_plot'):
                 st.session_state.global_plot = plotter.Plotter(st.session_state.normalized_df)
 

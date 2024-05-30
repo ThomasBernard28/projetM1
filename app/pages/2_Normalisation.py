@@ -100,6 +100,7 @@ if hasattr(st.session_state, 'normalized_df'):
                     index=None,
                     placeholder="Sélectionnez un élève"
                 )
+                outliers = st.checkbox(label="Ne pas tenir compte des résultat extrêmes", value=False, key="outliers2")
             with col2:
                 selected_periods = st.multiselect(
                     "Périodes à afficher",
@@ -121,7 +122,7 @@ if hasattr(st.session_state, 'normalized_df'):
 
             if selected_student:
                 st.session_state.normalized_student_df = normalizer.normalize_regarding_past_results(
-                    st.session_state.normalized_df, [selected_student])
+                    st.session_state.normalized_df, [selected_student], outliers)
 
                 if selected_periods:
                     st.session_state.normalized_student_df = normalizer.get_results_by_period(
@@ -155,6 +156,7 @@ if hasattr(st.session_state, 'normalized_df'):
                     index=None,
                     placeholder="Sélectionnez un élève"
                 )
+                outliers = st.checkbox(label="Ne pas tenir compte des résultat extrêmes", value=False, key="outliers")
 
             with col2:
                 selected_competence = st.selectbox(
@@ -173,7 +175,7 @@ if hasattr(st.session_state, 'normalized_df'):
                 st.session_state.normalized_competence_df = normalizer.normalize_regarding_competence(
                     st.session_state.normalized_df,
                     selected_student,
-                    selected_competence)
+                    selected_competence, outliers)
 
                 st.session_state.normalized_competence_plot = plotter.Plotter(st.session_state.normalized_competence_df,
                                                                               selected_competence,
