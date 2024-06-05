@@ -31,6 +31,13 @@ if hasattr(st.session_state, 'normalized_df'):
             if not hasattr(st.session_state, 'global_plot'):
                 st.session_state.global_plot = plotter.Plotter(st.session_state.normalized_df)
 
+            if points:
+                student_df = normalizer.get_all_student_results(st.session_state.normalized_df, st.session_state.name_list)
+                st.session_state.global_plot.show_points(student_df)
+
+            elif not points:
+                st.session_state.global_plot.hide_points()
+
             display(st.session_state.global_plot, global_plot_container)
 
         with tab2:
