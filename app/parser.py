@@ -5,17 +5,27 @@ import pandas as pd
 import openpyxl
 
 
-def parse_file(file_path, is_xls):
+def get_periods(file_path, is_xls):
+    if is_xls:
+        periods = xlc.get_periods(file_path)
+    else:
+        workbook = openpyxl.load_workbook(file_path)
+        periods = workbook.sheetnames
+
+    return periods
+
+
+def parse_file(file_path, is_xls, periods):
     if is_xls:
         workbook = xlc.convert_to_xlsx(file_path)
 
     else:
         workbook = openpyxl.load_workbook(file_path)
 
-    return convert_workbook_to_dataframe(workbook)
+    return convert_workbook_to_dataframe(workbook, periods)
 
 
-def convert_workbook_to_dataframe(workbook):
+def convert_workbook_to_dataframe(workbook, periods):
     """
     This method converts a multiple worksheets openpyxl's workbook into a single structured pandas dataframe
     :param workbook: The multiple worksheets openpyxl's workbook
@@ -32,7 +42,7 @@ def convert_workbook_to_dataframe(workbook):
     break_index_row, students = find_blank_index(name_sheet)
 
     for period in workbook.sheetnames:
-        if period in ["Nom", "B1", "B2", "Noel", "B3", "B4", "Exam. Juin"]:
+        if period in periods:
             sheet = workbook[period]
             test_names = update_test_name_counts(sheet, test_name_counts)
             break_index_col = 0

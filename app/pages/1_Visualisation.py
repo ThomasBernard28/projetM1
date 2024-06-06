@@ -78,11 +78,6 @@ if hasattr(st.session_state, 'normalized_df'):
                         )
                         show_quartiles = st.checkbox("Afficher les quartiles", False)
 
-            if not hasattr(st.session_state, 'student_plot'):
-                st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df, selected_students)
-                st.session_state.student_plot = plotter.Plotter(st.session_state.student_df)
-                display(st.session_state.student_plot, student_plot_container)
-
             if selected_students or show_means or show_quartiles or selected_periods or selected_competences:
                 st.session_state.student_df = normalizer.get_all_student_results(st.session_state.normalized_df,
                                                                                  selected_students)
@@ -98,8 +93,4 @@ if hasattr(st.session_state, 'normalized_df'):
                 st.session_state.student_plot = plotter.Plotter(st.session_state.student_df, show_means,
                                                                 st.session_state.normalized_df, selected_periods,
                                                                 selected_competences, show_quartiles)
-                display(st.session_state.student_plot, student_plot_container)
-
-            if not show_means and selected_students:
-                st.session_state.student_plot.hide_means()
                 display(st.session_state.student_plot, student_plot_container)

@@ -1,4 +1,6 @@
 import os
+import gc
+import time
 import streamlit as st
 import parser
 import normalizer
@@ -16,22 +18,35 @@ st.title("Bienvenue")
 uploaded_file = st.file_uploader("Choisissez le bulletin que vous voulez exploiter", type=["xls", "xlsx"], )
 
 if uploaded_file is not None:
-    if uploaded_file.name.endswith(".xls"):
-        with NamedTemporaryFile(dir="../resources/", delete=False, suffix=".xls") as file:
-            file.write(uploaded_file.getbuffer())
-            df = parser.parse_file(file.name, True)
-    else:
-        with NamedTemporaryFile(dir="../resources/", delete=False, suffix=".xlsx") as file:
-            file.write(uploaded_file.getbuffer())
-            df = parser.parse_file(file.name, False)
-    os.remove(file.name)
+    suffix = ".xls" if uploaded_file.name.endswith(".xls") else ".xlsx"
+    with NamedTemporaryFile(dir="../resources/", delete=False, suffix=suffix) as file:
+        file.write(uploaded_file.getbuffer())
+        file_path = file.name  # Retain the file path after closing the block
 
-    normalized_df = normalizer.normalize_results(df)
+    try:
+        periods = parser.get_periods(file_path, uploaded_file.name.endswith(".xls"))
 
-    st.write("Données chargées ✅\n Vous pouvez vous rendre sur la page de visualisation")
+        with st.form("periods form"):
+            st.write("Sélecteur de périodes")
+            selected_periods = st.multiselect(
+                "Périodes à prendre en compte",
+                periods,
+                placeholder="Sélectionnez une ou plusieurs périodes à prendre en compte",
+                default=periods
+            )
+            button = st.form_submit_button("Valider")
+            if button:
+                st.session_state.df = parser.parse_file(file_path, uploaded_file.name.endswith(".xls"), selected_periods)
 
-    # Save the normalized_df to use it in other pages
-    st.session_state.normalized_df = normalized_df
-
-    # Redirect to the next page
-    st.sidebar.success("Fichier chargé!")
+        if hasattr(st.session_state, 'df'):
+            normalized_df = normalizer.normalize_results(st.session_state.df)
+            st.write("Données chargées ✅\n Vous pouvez vous rendre sur la page de visualisation")
+            st.session_state.normalized_df = normalized_df
+            st.sidebar.success("Fichier chargé!")
+    finally:
+        gc.collect()
+        time.sleep(1)  # Ensure no lingering handles
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        else:
+            st.warning("Temporary file not found for deletion.")

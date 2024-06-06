@@ -2,6 +2,11 @@ import xlrd
 from openpyxl import Workbook
 
 
+def get_periods(file_path):
+    workbook = xlrd.open_workbook_xls(file_path)
+    return workbook.sheet_names()
+
+
 def convert_to_xlsx(file_path):
     workbook_xls = xlrd.open_workbook_xls(file_path)
     workbook = Workbook()
