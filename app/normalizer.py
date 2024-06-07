@@ -114,17 +114,20 @@ def normalize_regarding_past_results(dataframe, students, outliers):
     This method is used to normalize the results of a student in regard of his previous results.
     :param dataframe: The dataframe with all students results
     :param students: A list containing the student name that has to be normalized
+    :param outliers: A boolean indicating if the outliers have to be removed
     :return: A dataframe with the normalized results
     """
+    # In order to call get_all_student_results, we need to check if the students parameter is a list
     if not isinstance(students, list):
         raise TypeError("The students parameter must be a list")
     if len(students) == 0 or len(students) > 1:
         raise ValueError("The students parameter must contain exactly one student")
 
     student_df = get_all_student_results(dataframe, students).copy()
+    # Create the columns for the normalized results
     student_df['Normalized'] = np.nan
     student_df['Normalized Scaled'] = np.nan
-
+    
     if outliers:
         # Compute the quartiles and the interquartile range
         q1 = student_df['On10'].quantile(0.25)
@@ -161,6 +164,7 @@ def normalize_regarding_competence(dataframe, student, competence, outliers):
     :param dataframe: The dataframe with all students results
     :param student: The student name that has to be normalized
     :param competence: The competence that has to be normalized
+    :param outliers: A boolean indicating if the outliers have to be removed
     :return: A dataframe containing the normalized results
     """
     student_df = get_all_student_results(dataframe, [student]).copy()
