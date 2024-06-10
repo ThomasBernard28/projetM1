@@ -38,7 +38,11 @@ if uploaded_file is not None:
             )
             button = st.form_submit_button("Valider")
             if button:
-                st.session_state.df = parser.parse_file(file_path, uploaded_file.name.endswith(".xls"), selected_periods)
+                if "Nom" not in selected_periods:
+                    st.warning("La période 'Nom' n'est pas sélectionnée. Veuillez la sélectionner.")
+                    st.stop()
+                st.session_state.df = parser.parse_file(file_path, uploaded_file.name.endswith(".xls"),
+                                                        selected_periods)
 
         if hasattr(st.session_state, 'df'):
             normalized_df = normalizer.normalize_results(st.session_state.df)
