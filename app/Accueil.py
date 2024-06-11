@@ -39,7 +39,7 @@ if uploaded_file is not None:
             button = st.form_submit_button("Valider")
             if button:
                 if "Nom" not in selected_periods:
-                    st.warning("La période 'Nom' n'est pas sélectionnée. Veuillez la sélectionner.")
+                    st.warning("La feuille 'Nom' n'est pas sélectionnée. Veuillez la sélectionner.")
                     st.stop()
                 st.session_state.df = parser.parse_file(file_path, uploaded_file.name.endswith(".xls"),
                                                         selected_periods)

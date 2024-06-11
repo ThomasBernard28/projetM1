@@ -85,7 +85,7 @@ if hasattr(st.session_state, 'normalized_df'):
                             st.session_state.competences,
                             placeholder="Sélectionnez une ou plusieurs compétences"
                         )
-                        show_quartiles = st.checkbox("Afficher les quartiles", False)
+                        show_quartiles = st.checkbox("Afficher les quantiles", False)
 
             # If there is a selection in the filters then we update the plot and display it
             if selected_students or show_means or show_quartiles or selected_periods or selected_competences:
