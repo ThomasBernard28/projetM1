@@ -20,11 +20,16 @@ Le but de cette application est de visualiser dans une interface web développé
 
 1. Cloner le repository
 2. Créer le venv et l'activer
-3. Installer les dépendances à l'aide de pip avec la commande suivante :
+   ```
+   python -m venv .venv
+
+   source .venv/bin/activate
+   ```
+4. Installer les dépendances à l'aide de pip avec la commande suivante :
    ```
    pip install -r requirements.txt
    ```
-4. Exécuter l'application à l'aide de la commande suivante:
+5. Exécuter l'application à l'aide de la commande suivante:
    ```
    streamlit run app/Hello.py
    ```
