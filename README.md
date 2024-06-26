@@ -31,5 +31,6 @@ Le but de cette application est de visualiser dans une interface web développé
    ```
 5. Exécuter l'application à l'aide de la commande suivante:
    ```
-   streamlit run app/Hello.py
+   cd app/
+   streamlit run Accueil.py
    ```
